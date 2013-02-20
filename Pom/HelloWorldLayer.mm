@@ -54,9 +54,11 @@ enum {
 		
 		self.touchEnabled = YES;
 		CGSize s = [CCDirector sharedDirector].winSize;
+				
+		// init physics
+		[self initPhysics];
 		
-		
-		
+		//Set up sprite
 		CCSprite *sprite = [CCSprite spriteWithFile:@"bg.png"];
 		sprite.anchorPoint = CGPointMake(0, 0);
 		[self addChild:sprite z:-1];
@@ -85,11 +87,26 @@ enum {
 		sprite.anchorPoint = CGPointMake(0, 0);
 		[self addChild:sprite z:10];
 		
+		// Create the catapult's arm
+		CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
+		//arm.anchorPoint = CGPointMake(0, 0);
+		//arm.position = CGPointMake(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
+		[self addChild:arm z:1];
 		
-		// init physics
-		[self initPhysics];
+		b2BodyDef armBodyDef;
+		armBodyDef.type = b2_dynamicBody;
+		armBodyDef.linearDamping = 1;
+		armBodyDef.angularDamping = 1;
+		armBodyDef.position.Set(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
+		armBodyDef.userData = arm;
+		armBody = world->CreateBody(&armBodyDef);
 		
-		//Set up sprite
+		b2PolygonShape armBox;
+		b2FixtureDef armBoxDef;
+		armBoxDef.shape = &armBox;
+		armBoxDef.density = 0.3F;
+		armBox.SetAsBox(11.0f/PTM_RATIO, 91.0f/PTM_RATIO);
+		armFixture = armBody->CreateFixture(&armBoxDef);
 		
 		
 		[self scheduleUpdate];
@@ -148,20 +165,19 @@ enum {
 	b2EdgeShape groundBox;		
 	
 	// bottom
-	
-	groundBox.Set(b2Vec2(0,0), b2Vec2(s.width/PTM_RATIO,0));
+	groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), b2Vec2(s.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// top
-	groundBox.Set(b2Vec2(0,s.height/PTM_RATIO), b2Vec2(s.width/PTM_RATIO,s.height/PTM_RATIO));
+	groundBox.Set(b2Vec2(0, s.height/PTM_RATIO), b2Vec2(s.width * 2.0f/PTM_RATIO, s.height/PTM_RATIO));
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// left
-	groundBox.Set(b2Vec2(0,s.height/PTM_RATIO), b2Vec2(0,0));
+	groundBox.Set(b2Vec2(0, s.height/PTM_RATIO), b2Vec2(0,0));
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// right
-	groundBox.Set(b2Vec2(s.width/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width/PTM_RATIO,0));
+	groundBox.Set(b2Vec2(s. width * 2.0f/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width/PTM_RATIO,0));
 	groundBody->CreateFixture(&groundBox,0);
 }
 
@@ -196,7 +212,20 @@ enum {
 	
 	// Instruct the world to perform a single step of simulation. It is
 	// generally best to keep the time step and iterations fixed.
-	world->Step(dt, velocityIterations, positionIterations);	
+	world->Step(dt, velocityIterations, positionIterations);
+	
+	
+	
+	for(b2Body *b = world->GetBodyList(); b; b=b->GetNext()) {
+		if(b->GetUserData() != NULL) {
+			CCSprite *ballData = (CCSprite *)b->GetUserData();
+			ballData.position = ccp(b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
+			ballData.rotation = -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
+		}
+	}
+	
+	
+	
 }
 
 #pragma mark GameKit delegate
