@@ -202,6 +202,11 @@ enum {
 		
 		//self.position = CGPointMake(-480, 0);
 		
+		
+		// contact listener
+		contactListener = new MyContactListener();
+		world->SetContactListener(contactListener);
+		
 		[self scheduleUpdate];
 	}
 	return self;
@@ -251,8 +256,6 @@ enum {
 		
 		world->DestroyJoint(mouseJoint);
 		mouseJoint = nil;
-		
-		[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
 	}
 }
 
@@ -451,12 +454,18 @@ enum {
 	
 	// Arm is being released.
 	if (releasingArm && bulletJoint) {
-		// Check if the arm reached the end so we can return the limits
-		releasingArm = NO;
 		
-		// Destroy joint so the bullet will be free
-		world->DestroyJoint(bulletJoint);
-		bulletJoint = nil;
+		if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(10)) {
+			
+			// Check if the arm reached the end so we can return the limits
+			releasingArm = NO;
+			
+			// Destroy joint so the bullet will be free
+			world->DestroyJoint(bulletJoint);
+			bulletJoint = nil;
+			
+			[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
+		}
 	}
 	
 	// Bullet is moving.
@@ -472,6 +481,22 @@ enum {
 			self.position = myPosition;
 		}
 	}
+	
+	// Check for impacts
+	std::set<b2Body*>::iterator pos;
+	for (pos=contactListener->contacts.begin(); pos!=contactListener->contacts.end(); ++pos) {
+		b2Body *body = *pos;
+		
+		CCNode *contactNode = (CCNode*)body->GetUserData();
+		[self removeChild:contactNode cleanup:YES];
+		world->DestroyBody(body);
+		
+		[targets removeObject:[NSValue valueWithPointer:body]];
+		[enemies removeObject:[NSValue valueWithPointer:body]];
+	}
+	
+	// remove everything from the set
+	contactListener->contacts.clear();
 	
 }
 

@@ -216,6 +216,7 @@
 		1B421E9516D53C1A0086C7C3 /* squirrel_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B421E7616D53C1A0086C7C3 /* squirrel_1.png */; };
 		1B421E9616D53C1A0086C7C3 /* squirrel_2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B421E7716D53C1A0086C7C3 /* squirrel_2-hd.png */; };
 		1B421E9716D53C1A0086C7C3 /* squirrel_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B421E7816D53C1A0086C7C3 /* squirrel_2.png */; };
+		1B4220EC16D647710086C7C3 /* MyContactListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1B4220EA16D647710086C7C3 /* MyContactListener.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -624,6 +625,8 @@
 		1B421E7616D53C1A0086C7C3 /* squirrel_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = squirrel_1.png; sourceTree = "<group>"; };
 		1B421E7716D53C1A0086C7C3 /* squirrel_2-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "squirrel_2-hd.png"; sourceTree = "<group>"; };
 		1B421E7816D53C1A0086C7C3 /* squirrel_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = squirrel_2.png; sourceTree = "<group>"; };
+		1B4220EA16D647710086C7C3 /* MyContactListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyContactListener.cpp; sourceTree = "<group>"; };
+		1B4220EB16D647710086C7C3 /* MyContactListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyContactListener.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -686,6 +689,8 @@
 				1B421E4516D5381F0086C7C3 /* AppDelegate.mm */,
 				1B421E4716D5381F0086C7C3 /* HelloWorldLayer.h */,
 				1B421E4816D5381F0086C7C3 /* HelloWorldLayer.mm */,
+				1B4220EB16D647710086C7C3 /* MyContactListener.h */,
+				1B4220EA16D647710086C7C3 /* MyContactListener.cpp */,
 				1B421E4A16D5381F0086C7C3 /* IntroLayer.h */,
 				1B421E4B16D5381F0086C7C3 /* IntroLayer.mm */,
 				1B421E4D16D5381F0086C7C3 /* GLES-Render.h */,
@@ -1534,6 +1539,7 @@
 				1B421E4916D5381F0086C7C3 /* HelloWorldLayer.mm in Sources */,
 				1B421E4C16D5381F0086C7C3 /* IntroLayer.mm in Sources */,
 				1B421E4F16D5381F0086C7C3 /* GLES-Render.mm in Sources */,
+				1B4220EC16D647710086C7C3 /* MyContactListener.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
