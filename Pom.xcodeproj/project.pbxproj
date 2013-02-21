@@ -217,6 +217,10 @@
 		1B421E9616D53C1A0086C7C3 /* squirrel_2-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B421E7716D53C1A0086C7C3 /* squirrel_2-hd.png */; };
 		1B421E9716D53C1A0086C7C3 /* squirrel_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B421E7816D53C1A0086C7C3 /* squirrel_2.png */; };
 		1B4220EC16D647710086C7C3 /* MyContactListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1B4220EA16D647710086C7C3 /* MyContactListener.cpp */; };
+		1B4220EF16D6758A0086C7C3 /* bgm-test.caf in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220EE16D6758A0086C7C3 /* bgm-test.caf */; };
+		1B4220F216D678070086C7C3 /* MainScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B4220F116D678060086C7C3 /* MainScene.mm */; };
+		1B4220F516D6A45B0086C7C3 /* bear_anim.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F316D6A4590086C7C3 /* bear_anim.plist */; };
+		1B4220F616D6A45B0086C7C3 /* bear_anim.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F416D6A45A0086C7C3 /* bear_anim.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -230,18 +234,18 @@
 		1B421C1D16D5381B0086C7C3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1B421C1F16D5381B0086C7C3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1B421C2116D5381B0086C7C3 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
-		1B421C2516D5381B0086C7C3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = "<group>"; };
-		1B421C2716D5381B0086C7C3 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/Default@2x.png"; sourceTree = "<group>"; };
-		1B421C2916D5381B0086C7C3 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "Resources/Default-568h@2x.png"; sourceTree = "<group>"; };
-		1B421C2B16D5381B0086C7C3 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-Landscape~ipad.png"; path = "Resources/Default-Landscape~ipad.png"; sourceTree = "<group>"; };
-		1B421C2D16D5381B0086C7C3 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Resources/Icon-72.png"; sourceTree = "<group>"; };
-		1B421C2F16D5381B0086C7C3 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50.png"; path = "Resources/Icon-Small-50.png"; sourceTree = "<group>"; };
-		1B421C3116D5381C0086C7C3 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small.png"; path = "Resources/Icon-Small.png"; sourceTree = "<group>"; };
-		1B421C3316D5381C0086C7C3 /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small@2x.png"; path = "Resources/Icon-Small@2x.png"; sourceTree = "<group>"; };
-		1B421C3516D5381C0086C7C3 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Resources/Icon.png; sourceTree = "<group>"; };
-		1B421C3716D5381C0086C7C3 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "Resources/Icon@2x.png"; sourceTree = "<group>"; };
-		1B421C3916D5381C0086C7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Resources/Info.plist; sourceTree = "<group>"; };
-		1B421C3A16D5381C0086C7C3 /* iTunesArtwork */ = {isa = PBXFileReference; lastKnownFileType = file; name = iTunesArtwork; path = Resources/iTunesArtwork; sourceTree = "<group>"; };
+		1B421C2516D5381B0086C7C3 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		1B421C2716D5381B0086C7C3 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		1B421C2916D5381B0086C7C3 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		1B421C2B16D5381B0086C7C3 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		1B421C2D16D5381B0086C7C3 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
+		1B421C2F16D5381B0086C7C3 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-50.png"; sourceTree = "<group>"; };
+		1B421C3116D5381C0086C7C3 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small.png"; sourceTree = "<group>"; };
+		1B421C3316D5381C0086C7C3 /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small@2x.png"; sourceTree = "<group>"; };
+		1B421C3516D5381C0086C7C3 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		1B421C3716D5381C0086C7C3 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
+		1B421C3916D5381C0086C7C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1B421C3A16D5381C0086C7C3 /* iTunesArtwork */ = {isa = PBXFileReference; lastKnownFileType = file; path = iTunesArtwork; sourceTree = "<group>"; };
 		1B421C3E16D5381C0086C7C3 /* CCAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CCAction.h; path = libs/cocos2d/CCAction.h; sourceTree = "<group>"; };
 		1B421C3F16D5381C0086C7C3 /* CCAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = CCAction.m; path = libs/cocos2d/CCAction.m; sourceTree = "<group>"; };
 		1B421C4116D5381C0086C7C3 /* CCActionCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CCActionCamera.h; path = libs/cocos2d/CCActionCamera.h; sourceTree = "<group>"; };
@@ -627,6 +631,11 @@
 		1B421E7816D53C1A0086C7C3 /* squirrel_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = squirrel_2.png; sourceTree = "<group>"; };
 		1B4220EA16D647710086C7C3 /* MyContactListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyContactListener.cpp; sourceTree = "<group>"; };
 		1B4220EB16D647710086C7C3 /* MyContactListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyContactListener.h; sourceTree = "<group>"; };
+		1B4220EE16D6758A0086C7C3 /* bgm-test.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "bgm-test.caf"; sourceTree = "<group>"; };
+		1B4220F016D678050086C7C3 /* MainScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainScene.h; sourceTree = "<group>"; };
+		1B4220F116D678060086C7C3 /* MainScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainScene.mm; sourceTree = "<group>"; };
+		1B4220F316D6A4590086C7C3 /* bear_anim.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bear_anim.plist; sourceTree = "<group>"; };
+		1B4220F416D6A45A0086C7C3 /* bear_anim.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bear_anim.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -695,6 +704,8 @@
 				1B421E4B16D5381F0086C7C3 /* IntroLayer.mm */,
 				1B421E4D16D5381F0086C7C3 /* GLES-Render.h */,
 				1B421E4E16D5381F0086C7C3 /* GLES-Render.mm */,
+				1B4220F016D678050086C7C3 /* MainScene.h */,
+				1B4220F116D678060086C7C3 /* MainScene.mm */,
 				1B421C2416D5381B0086C7C3 /* Resources */,
 				1B421C3C16D5381C0086C7C3 /* libs */,
 				1B421E4016D5381F0086C7C3 /* Supporting Files */,
@@ -705,6 +716,7 @@
 		1B421C2416D5381B0086C7C3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1B4220ED16D674C30086C7C3 /* sounds */,
 				1B421E5916D53C1A0086C7C3 /* images */,
 				1B421C2516D5381B0086C7C3 /* Default.png */,
 				1B421C2716D5381B0086C7C3 /* Default@2x.png */,
@@ -719,7 +731,7 @@
 				1B421C3916D5381C0086C7C3 /* Info.plist */,
 				1B421C3A16D5381C0086C7C3 /* iTunesArtwork */,
 			);
-			name = Resources;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		1B421C3C16D5381C0086C7C3 /* libs */ = {
@@ -1243,6 +1255,8 @@
 		1B421E5916D53C1A0086C7C3 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				1B4220F316D6A4590086C7C3 /* bear_anim.plist */,
+				1B4220F416D6A45A0086C7C3 /* bear_anim.png */,
 				1B421E5A16D53C1A0086C7C3 /* acorn-hd.png */,
 				1B421E5B16D53C1A0086C7C3 /* acorn.png */,
 				1B421E5C16D53C1A0086C7C3 /* bg-hd.png */,
@@ -1276,6 +1290,14 @@
 				1B421E7816D53C1A0086C7C3 /* squirrel_2.png */,
 			);
 			path = images;
+			sourceTree = "<group>";
+		};
+		1B4220ED16D674C30086C7C3 /* sounds */ = {
+			isa = PBXGroup;
+			children = (
+				1B4220EE16D6758A0086C7C3 /* bgm-test.caf */,
+			);
+			path = sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1372,6 +1394,9 @@
 				1B421E9516D53C1A0086C7C3 /* squirrel_1.png in Resources */,
 				1B421E9616D53C1A0086C7C3 /* squirrel_2-hd.png in Resources */,
 				1B421E9716D53C1A0086C7C3 /* squirrel_2.png in Resources */,
+				1B4220EF16D6758A0086C7C3 /* bgm-test.caf in Resources */,
+				1B4220F516D6A45B0086C7C3 /* bear_anim.plist in Resources */,
+				1B4220F616D6A45B0086C7C3 /* bear_anim.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1540,6 +1565,7 @@
 				1B421E4C16D5381F0086C7C3 /* IntroLayer.mm in Sources */,
 				1B421E4F16D5381F0086C7C3 /* GLES-Render.mm in Sources */,
 				1B4220EC16D647710086C7C3 /* MyContactListener.cpp in Sources */,
+				1B4220F216D678070086C7C3 /* MainScene.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

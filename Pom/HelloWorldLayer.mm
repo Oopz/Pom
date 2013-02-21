@@ -15,6 +15,7 @@
 // Needed to obtain the Navigation Controller
 #import "AppDelegate.h"
 
+#import "SimpleAudioEngine.h"
 
 enum {
 	kTagParentNode = 1,
@@ -130,7 +131,7 @@ enum {
 		enemies = nil;
 	}
 	
-	
+	[self setPosition:CGPointMake(0, 0)]; // we added it to reset the position to the catapult
 	
 	[self createBullets:4];
 	[self createTargets];
@@ -158,6 +159,11 @@ enum {
 -(id) init
 {
 	if( (self=[super init])) {
+		// init music
+		[[SimpleAudioEngine sharedEngine] setEnabled:FALSE];
+		[[SimpleAudioEngine sharedEngine] preloadBackgroundMusic:@"bgm-test.caf"];
+		[[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"bgm-test.caf"];
+		
 		
 		// enable events
 		
