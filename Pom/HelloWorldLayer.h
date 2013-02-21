@@ -6,7 +6,8 @@
 //  Copyright Oopz 2013. All rights reserved.
 //
 
-
+#import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
 #import <GameKit/GameKit.h>
 
 // When you import this file, you import all the cocos2d classes
@@ -30,6 +31,19 @@
 	
 	b2Fixture *armFixture;
 	b2Body *armBody;
+	b2Body *groundBody;
+	
+	b2RevoluteJoint *armJoint;
+	
+	b2MouseJoint *mouseJoint;
+	
+	NSMutableArray *bullets;
+	int currentBullet;
+	
+	b2Body *bulletBody;
+	b2WeldJoint *bulletJoint;
+	
+	BOOL releasingArm;
 }
 
 // returns a CCScene that contains the HelloWorldLayer as the only child

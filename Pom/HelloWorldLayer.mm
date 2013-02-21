@@ -46,6 +46,67 @@ enum {
 	return scene;
 }
 
+- (void) createBullets:(int)count {
+	currentBullet = 0;
+	CGFloat pos = 62.0f;
+	
+	if(count > 0) {
+		// delta is the spacing between corns
+		// 62 is the position on the screen where we want the corns to start appearing
+		// 165 is the position on the screen where we want the corns to stop appearing
+		// 30 is the size of the corn
+		CGFloat delta = (count > 1)?((165.0f - 62.0f -30.0f) / (count - 1)):0.0f;
+		
+		bullets = [[NSMutableArray alloc] initWithCapacity:count];
+		for(int i=0; i<count; i++, pos+=delta) {
+			// Create the bullet
+			CCSprite *sprite = [CCSprite spriteWithFile:@"acorn.png"];
+			[self addChild:sprite z:1];
+			
+			b2BodyDef bulletBodyDef;
+			bulletBodyDef.type = b2_dynamicBody;
+			bulletBodyDef.bullet = true;
+			bulletBodyDef.position.Set(pos/PTM_RATIO, (FLOOR_HEIGHT+15.0f)/PTM_RATIO);
+			bulletBodyDef.userData = sprite;
+			b2Body * bullet = world->CreateBody(&bulletBodyDef);
+			bullet->SetActive(false);
+			
+			b2CircleShape circle;
+			circle.m_radius = 15.0/PTM_RATIO;
+			
+			b2FixtureDef ballShapeDef;
+			ballShapeDef.shape = &circle;
+			ballShapeDef.density = 0.8f;
+			ballShapeDef.restitution = 0.2f;
+			ballShapeDef.friction = 0.99f;
+			bullet->CreateFixture(&ballShapeDef);
+			
+			[bullets addObject:[NSValue valueWithPointer:bullet]];
+		}
+	}
+}
+
+- (BOOL) attachBullet {
+	if(currentBullet < [bullets count]) {
+		bulletBody = (b2Body *)[[bullets objectAtIndex:currentBullet++] pointerValue];
+		bulletBody->SetTransform(b2Vec2(230.0/PTM_RATIO, (155.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);
+		bulletBody->SetActive(true);
+		
+		b2WeldJointDef weldJointDef;
+		weldJointDef.Initialize(bulletBody, armBody, b2Vec2(230.0f/PTM_RATIO, (155.0f+FLOOR_HEIGHT)/PTM_RATIO));
+		weldJointDef.collideConnected = false;
+		
+		bulletJoint = (b2WeldJoint *)world->CreateJoint(&weldJointDef);
+		return YES;
+	}
+	return NO;
+}
+
+- (void) resetGame {
+	[self createBullets:4];
+	[self attachBullet];
+}
+
 -(id) init
 {
 	if( (self=[super init])) {
@@ -108,10 +169,73 @@ enum {
 		armBox.SetAsBox(11.0f/PTM_RATIO, 91.0f/PTM_RATIO);
 		armFixture = armBody->CreateFixture(&armBoxDef);
 		
+		// Create a joint to fix the catapult to the floor
+		b2RevoluteJointDef armJointDef;
+		armJointDef.Initialize(groundBody, armBody, b2Vec2(233.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
+		armJointDef.enableMotor = true;
+		armJointDef.enableLimit = true;
+		armJointDef.motorSpeed = -10; //-1260
+		armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);
+		armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);
+		armJointDef.maxMotorTorque = 700;//4800
+		
+		armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);
+		
+		// game start
+		// At the end of the init method the catapult is still at the zero degree angle
+		// so the bullet actually gets attached to the wrong position.
+		[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
 		
 		[self scheduleUpdate];
 	}
 	return self;
+}
+
+- (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	if(mouseJoint != nil) return;
+	
+	UITouch *myTouch = [touches anyObject];
+	CGPoint location = [myTouch locationInView:[myTouch view]];
+	location = [[CCDirector sharedDirector] convertToGL:location];
+	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+	
+	if(locationWorld.x < armBody->GetWorldCenter().x + 50.0/PTM_RATIO) {
+		
+		// When you set up a mouse joint, you have to give it two bodies.
+		// The first isn't used, but the convention is to use the ground body.
+		// The second is the body you want to move.
+		b2MouseJointDef md;
+		md.bodyA = groundBody;
+		md.bodyB = armBody;
+		md.target = locationWorld;
+		md.maxForce = 2000;
+		
+		mouseJoint = (b2MouseJoint *)world->CreateJoint(&md);
+	}
+	
+}
+
+- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+	if(mouseJoint == nil) return;
+	
+	UITouch *myTouch = [touches anyObject];
+	CGPoint location = [myTouch locationInView:[myTouch view]];
+	location = [[CCDirector sharedDirector] convertToGL:location];
+	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+	
+	mouseJoint->SetTarget(locationWorld);
+	
+}
+
+- (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	if (mouseJoint != nil) {
+		if (armJoint->GetJointAngle() >= CC_DEGREES_TO_RADIANS(20)) {
+			releasingArm = YES;
+		}
+		
+		world->DestroyJoint(mouseJoint);
+		mouseJoint = nil;
+	}
 }
 
 -(void) dealloc
@@ -121,6 +245,9 @@ enum {
 	
 	delete m_debugDraw;
 	m_debugDraw = NULL;
+	
+	// release bullets
+	[bullets release];
 	
 	[super dealloc];
 }	
@@ -159,7 +286,7 @@ enum {
 	// Call the body factory which allocates memory for the ground body
 	// from a pool and creates the ground box shape (also from a pool).
 	// The body is also added to the world.
-	b2Body* groundBody = world->CreateBody(&groundBodyDef);
+	groundBody = world->CreateBody(&groundBodyDef);
 	
 	// Define the ground box shape.
 	b2EdgeShape groundBox;		
@@ -177,7 +304,7 @@ enum {
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// right
-	groundBox.Set(b2Vec2(s. width * 2.0f/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width/PTM_RATIO,0));
+	groundBox.Set(b2Vec2(s. width * 2.0f/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width*2.0f/PTM_RATIO,0));
 	groundBody->CreateFixture(&groundBox,0);
 }
 
@@ -224,7 +351,29 @@ enum {
 		}
 	}
 	
+	// Arm is being released.
+	if (releasingArm && bulletJoint) {
+		// Check if the arm reached the end so we can return the limits
+		releasingArm = NO;
+		
+		// Destroy joint so the bullet will be free
+		world->DestroyJoint(bulletJoint);
+		bulletJoint = nil;
+	}
 	
+	// Bullet is moving.
+	if(bulletBody && bulletJoint == nil) {
+		b2Vec2 position = bulletBody->GetPosition();
+		CGPoint myPosition = self.position;
+		CGSize screenSize = [CCDirector sharedDirector].winSize;
+		
+		// Move the camera.
+		if (position.x > screenSize.width / 2.0f / PTM_RATIO) {
+			// We do this because the position has to be negative to make the scene move to the left
+			myPosition.x = - MIN(screenSize.width * 2.0f - screenSize.width, position.x * PTM_RATIO - screenSize.width / 2.0f);
+			self.position = myPosition;
+		}
+	}
 	
 }
 
