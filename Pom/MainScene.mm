@@ -51,7 +51,7 @@
 		
 		
 		// static background
-		self.bgStatic = [CCSprite spriteWithFile:@"bg.png"];
+		self.bgStatic = [CCSprite spriteWithFile:@"bg_static.png"];
 		self.bgStatic.position = ccp(winSize.width/2, winSize.height/2);
 		[self addChild:_bgStatic z:-1];
 		
@@ -69,7 +69,7 @@
 		
 		CCAnimation *bgAnim = [CCAnimation animationWithSpriteFrames:bgAnimFrames delay:0.1f];
 		self.bgElement = [CCSprite spriteWithSpriteFrameName:@"bear1.png"];
-		_bgElement.position = ccp(winSize.width/2, winSize.height/2);
+		_bgElement.position = ccp(winSize.width/2, _bgElement.contentSize.height/2 + 20);
 		self.bgElementAction1 = [CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:bgAnim]];
 		[_bgElement runAction:_bgElementAction1];
 		[spriteSheet addChild:_bgElement];

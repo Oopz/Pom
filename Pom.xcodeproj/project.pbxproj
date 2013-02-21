@@ -221,6 +221,8 @@
 		1B4220F216D678070086C7C3 /* MainScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B4220F116D678060086C7C3 /* MainScene.mm */; };
 		1B4220F516D6A45B0086C7C3 /* bear_anim.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F316D6A4590086C7C3 /* bear_anim.plist */; };
 		1B4220F616D6A45B0086C7C3 /* bear_anim.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F416D6A45A0086C7C3 /* bear_anim.png */; };
+		1B4220F916D6B1550086C7C3 /* bg_static.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F716D6B1520086C7C3 /* bg_static.png */; };
+		1B4220FA16D6B1550086C7C3 /* bg_static-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B4220F816D6B1530086C7C3 /* bg_static-hd.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -636,6 +638,8 @@
 		1B4220F116D678060086C7C3 /* MainScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainScene.mm; sourceTree = "<group>"; };
 		1B4220F316D6A4590086C7C3 /* bear_anim.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bear_anim.plist; sourceTree = "<group>"; };
 		1B4220F416D6A45A0086C7C3 /* bear_anim.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bear_anim.png; sourceTree = "<group>"; };
+		1B4220F716D6B1520086C7C3 /* bg_static.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg_static.png; sourceTree = "<group>"; };
+		1B4220F816D6B1530086C7C3 /* bg_static-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg_static-hd.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1255,6 +1259,8 @@
 		1B421E5916D53C1A0086C7C3 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				1B4220F716D6B1520086C7C3 /* bg_static.png */,
+				1B4220F816D6B1530086C7C3 /* bg_static-hd.png */,
 				1B4220F316D6A4590086C7C3 /* bear_anim.plist */,
 				1B4220F416D6A45A0086C7C3 /* bear_anim.png */,
 				1B421E5A16D53C1A0086C7C3 /* acorn-hd.png */,
@@ -1397,6 +1403,8 @@
 				1B4220EF16D6758A0086C7C3 /* bgm-test.caf in Resources */,
 				1B4220F516D6A45B0086C7C3 /* bear_anim.plist in Resources */,
 				1B4220F616D6A45B0086C7C3 /* bear_anim.png in Resources */,
+				1B4220F916D6B1550086C7C3 /* bg_static.png in Resources */,
+				1B4220FA16D6B1550086C7C3 /* bg_static-hd.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
