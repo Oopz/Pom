@@ -103,21 +103,55 @@ enum {
 }
 
 - (void) resetGame {
-	[self createBullets:4];
-	[self attachBullet];
 	
+	// Previous bullets cleanup
+	if (bullets) {
+		for (NSValue *bulletPointer in bullets) {
+			b2Body *bullet = (b2Body*)[bulletPointer pointerValue];
+			CCNode *node = (CCNode*)bullet->GetUserData();
+			[self removeChild:node cleanup:YES];
+			world->DestroyBody(bullet);
+		}
+		[bullets release];
+		bullets = nil;
+	}
+	
+	// Previous targets cleanup
+	if (targets) {
+		for (NSValue *bodyValue in targets) {
+			b2Body *body = (b2Body*)[bodyValue pointerValue];
+			CCNode *node = (CCNode*)body->GetUserData();
+			[self removeChild:node cleanup:YES];
+			world->DestroyBody(body);
+		}
+		[targets release];
+		[enemies release];
+		targets = nil;
+		enemies = nil;
+	}
+	
+	
+	
+	[self createBullets:4];
 	[self createTargets];
+	[self runAction:[CCSequence actions:
+					 [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)],
+					 [CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
+					 [CCDelayTime actionWithDuration:1.0f],
+					 [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)],
+					 nil]];
 }
 
 - (void) resetBullet {
 	if ([enemies count] == 0) {
 		// game over
-		// We'll do something here later
+		[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		
 	}else if([self attachBullet]) {
 		[self runAction:[CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)]];
 	}else {
 		// We can reset the whole scene here
-		// Also, let's do this later
+		[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
 	}
 }
 
@@ -250,7 +284,7 @@ enum {
 
 - (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 	if (mouseJoint != nil) {
-		if (armJoint->GetJointAngle() >= CC_DEGREES_TO_RADIANS(20)) {
+		if (armJoint->GetJointAngle() >= CC_DEGREES_TO_RADIANS(10)) {//20
 			releasingArm = YES;
 		}
 		
@@ -488,11 +522,23 @@ enum {
 		b2Body *body = *pos;
 		
 		CCNode *contactNode = (CCNode*)body->GetUserData();
+		CGPoint position = contactNode.position;
 		[self removeChild:contactNode cleanup:YES];
 		world->DestroyBody(body);
 		
 		[targets removeObject:[NSValue valueWithPointer:body]];
 		[enemies removeObject:[NSValue valueWithPointer:body]];
+		
+		CCParticleSun* explosion = [[CCParticleSun alloc] initWithTotalParticles:200];
+		//explosion.emissionRate=1000.0f; // i added it to have a faster emission
+		explosion.autoRemoveOnFinish = YES;
+		explosion.startSize = 10.0f;
+		explosion.speed = 70.0f;
+		explosion.anchorPoint = ccp(0.5f, 0.5f);
+		explosion.position = position;
+		explosion.duration = 1.0f;
+		[self addChild:explosion z:11];
+		[explosion release];
 	}
 	
 	// remove everything from the set
