@@ -109,6 +109,18 @@ enum {
 	[self createTargets];
 }
 
+- (void) resetBullet {
+	if ([enemies count] == 0) {
+		// game over
+		// We'll do something here later
+	}else if([self attachBullet]) {
+		[self runAction:[CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)]];
+	}else {
+		// We can reset the whole scene here
+		// Also, let's do this later
+	}
+}
+
 -(id) init
 {
 	if( (self=[super init])) {
@@ -179,7 +191,7 @@ enum {
 		armJointDef.motorSpeed = -10; //-1260
 		armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);
 		armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);
-		armJointDef.maxMotorTorque = 700;//4800
+		armJointDef.maxMotorTorque = 700;//4800,700
 		
 		armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);
 		
@@ -239,6 +251,8 @@ enum {
 		
 		world->DestroyJoint(mouseJoint);
 		mouseJoint = nil;
+		
+		[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
 	}
 }
 
@@ -388,8 +402,8 @@ enum {
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// right
-	groundBox.Set(b2Vec2(s. width * 2.0f/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width*2.0f/PTM_RATIO,0));
-	groundBody->CreateFixture(&groundBox,0);
+	//groundBox.Set(b2Vec2(s. width * 2.0f/PTM_RATIO,s.height/PTM_RATIO), b2Vec2(s.width*2.0f/PTM_RATIO,0));
+	//groundBody->CreateFixture(&groundBox,0);
 }
 
 -(void) draw
