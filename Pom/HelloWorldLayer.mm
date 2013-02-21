@@ -105,6 +105,8 @@ enum {
 - (void) resetGame {
 	[self createBullets:4];
 	[self attachBullet];
+	
+	[self createTargets];
 }
 
 -(id) init
@@ -186,6 +188,8 @@ enum {
 		// so the bullet actually gets attached to the wrong position.
 		[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
 		
+		//self.position = CGPointMake(-480, 0);
+		
 		[self scheduleUpdate];
 	}
 	return self;
@@ -238,6 +242,83 @@ enum {
 	}
 }
 
+- (void) createTarget:(NSString *)imageName
+		   atPosition:(CGPoint)position
+			 rotation:(CGFloat)rotation
+			 isCircle:(BOOL)isCircle
+			 isStatic:(BOOL)isStatic
+			  isEnemy:(BOOL)isEnemy {
+	CCSprite *sprite = [CCSprite spriteWithFile:imageName];
+	[self addChild:sprite z:1];
+	
+	b2BodyDef bodyDef;
+	bodyDef.type = isStatic?b2_staticBody:b2_dynamicBody;
+	bodyDef.position.Set((position.x+sprite.contentSize.width/2.0f)/PTM_RATIO, (position.y+sprite.contentSize.height/2.0f)/PTM_RATIO);
+	bodyDef.angle = CC_DEGREES_TO_RADIANS(rotation);
+	bodyDef.userData = sprite;
+	b2Body *body = world->CreateBody(&bodyDef);
+	
+	b2FixtureDef boxDef;
+	if(isCircle) {
+		b2CircleShape circle;
+		circle.m_radius = sprite.contentSize.width/2.0f/PTM_RATIO;
+		boxDef.shape = &circle;
+	}else {
+		b2PolygonShape box;
+		box.SetAsBox(sprite.contentSize.width/2.0f/PTM_RATIO, sprite.contentSize.height/2.0f/PTM_RATIO);
+		boxDef.shape = &box;
+	}
+	
+	if(isEnemy) {
+		boxDef.userData = (void*)1;
+		[enemies addObject:[NSValue valueWithPointer:body]];
+	}
+	
+	boxDef.density = 0.5f;
+	body->CreateFixture(&boxDef);
+	
+	[targets addObject:[NSValue valueWithPointer:body]];
+	
+}
+
+- (void) createTargets {
+	[targets release];
+	[enemies release];
+	targets = [[NSMutableSet alloc] init];
+	enemies = [[NSMutableSet alloc] init];
+	
+	// First block
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(675.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(741.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(741.0, FLOOR_HEIGHT+23.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_3.png" atPosition:CGPointMake(672.0, FLOOR_HEIGHT+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(707.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(707.0, FLOOR_HEIGHT+81.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	
+	[self createTarget:@"head_dog.png" atPosition:CGPointMake(702.0, FLOOR_HEIGHT) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
+	[self createTarget:@"head_cat.png" atPosition:CGPointMake(680.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
+	[self createTarget:@"head_dog.png" atPosition:CGPointMake(740.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
+		
+	// 2 bricks at the right of the first block
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(770.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(770.0, FLOOR_HEIGHT+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	
+	// The dog between the blocks
+	[self createTarget:@"head_dog.png" atPosition:CGPointMake(830.0, FLOOR_HEIGHT) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
+	
+	// Second block
+	[self createTarget:@"brick_platform.png" atPosition:CGPointMake(839.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:YES isEnemy:NO];
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(854.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(854.0, FLOOR_HEIGHT+28.0f+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"head_cat.png" atPosition:CGPointMake(881.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_1.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f+46.0f+23.0f) rotation:0.0 isCircle:NO isStatic:NO isEnemy:NO];
+	[self createTarget:@"brick_2.png" atPosition:CGPointMake(882.0, FLOOR_HEIGHT+108.0f) rotation:90.0f isCircle:NO isStatic:NO isEnemy:NO];
+	
+	
+}
+
 -(void) dealloc
 {
 	delete world;
@@ -248,6 +329,9 @@ enum {
 	
 	// release bullets
 	[bullets release];
+	
+	[targets release];
+	[enemies release];
 	
 	[super dealloc];
 }	
