@@ -27,23 +27,32 @@
 		[self showAsset];
 		
 		CGSize winSize = [[CCDirector sharedDirector] winSize];
+		CCMenuItemLabel *itemNext = [CCMenuItemFont itemWithString:@"Next" block:^(id sender) {
+			NSLog(@"next");
+		}];
+		itemNext.tag = 0;
+		itemNext.color = ccc3(0, 0, 255);
 		CCMenuItemLabel *itemResume = [CCMenuItemFont itemWithString:@"Resume" block:^(id sender) {
 			NSLog(@"resume");
+			[self hideMenu];
 		}];
-		itemResume.color = ccc3(0, 0, 0);
+		itemResume.tag = 1;
+		itemResume.color = ccc3(0, 0, 255);
 		CCMenuItemLabel *itemRestart = [CCMenuItemFont itemWithString:@"Restart" block:^(id sender) {
 			NSLog(@"restart");
+			[self hideMenu];
 			[self callbackRestart:sender];
 		}];
-		itemRestart.color = ccc3(0, 0, 0);
+		itemRestart.tag = 2;
+		itemRestart.color = ccc3(0, 0, 255);
 		CCMenuItemLabel *itemQuit = [CCMenuItemFont itemWithString:@"Quit" block:^(id sender) {
 			NSLog(@"quit");
 			[[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:1.0 scene:[MainScene node]]];
 		}];
-		itemQuit.color = ccc3(0, 0, 0);
+		itemQuit.tag = 3;
+		itemQuit.color = ccc3(0, 0, 255);
 		
-		self.menuAsset = [CCMenu menuWithItems: itemResume, itemRestart, itemQuit, nil];
-		[self.menuAsset alignItemsVerticallyWithPadding:10.0f];
+		self.menuAsset = [CCMenu menuWithItems: itemNext, itemResume, itemRestart, itemQuit, nil];
 		self.menuAsset.position = ccp(winSize.width/2, winSize.height/2);
 		[self addChild:_menuAsset];
 		
@@ -103,6 +112,16 @@
 }
 
 - (void)showMenu:(BOOL)won {
+	if(won) {
+		[self.menuAsset getChildByTag:0].visible = YES;
+		[self.menuAsset getChildByTag:1].visible = NO;
+		[self.menuAsset getChildByTag:2].visible = NO;
+	}else{
+		[self.menuAsset getChildByTag:0].visible = NO;
+		[self.menuAsset getChildByTag:1].visible = YES;
+		[self.menuAsset getChildByTag:2].visible = YES;
+	}
+	[self.menuAsset alignItemsVerticallyWithPadding:10.0f];
 	self.menuAsset.visible = true;
 }
 

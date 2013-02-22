@@ -169,13 +169,15 @@ enum {
 - (void) resetBullet {
 	if ([enemies count] == 0) {
 		// game over
-		[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		[self.hud showMenu:YES];
 		
 	}else if([self attachBullet]) {
 		[self runAction:[CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)]];
 	}else {
 		// We can reset the whole scene here
-		[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		[self.hud showMenu:NO];
 	}
 }
 
