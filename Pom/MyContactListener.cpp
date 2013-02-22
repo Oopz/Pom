@@ -41,7 +41,9 @@ void MyContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *im
 			maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
 		}
 		
-		if (maxImpulse > 1.0f) {
+		float stamina = 0.5f;//1.0f
+		
+		if (maxImpulse > stamina) {
 			// Flag the enemy(ies) for breaking.
 			if(isAEnemy)
 				contacts.insert(contact->GetFixtureA()->GetBody());

@@ -32,6 +32,8 @@ enum {
 
 @implementation HelloWorldLayer
 
+@synthesize hud = _hud;
+
 +(CCScene *) scene
 {
 	// 'scene' is an autorelease object.
@@ -39,6 +41,11 @@ enum {
 	
 	// 'layer' is an autorelease object.
 	HelloWorldLayer *layer = [HelloWorldLayer node];
+	
+	// hud
+	HUDLayer *hud = [HUDLayer node];
+	layer.hud = hud;
+	[scene addChild:hud z:64];// most front
 	
 	// add layer as a child to scene
 	[scene addChild: layer];
@@ -88,7 +95,10 @@ enum {
 }
 
 - (BOOL) attachBullet {
-	if(currentBullet < [bullets count]) {
+	if(bulletJoint) {// if any bullet attached
+		NSLog(@"Bullet has been there!");
+		return YES;
+	}else if(currentBullet < [bullets count]) {
 		bulletBody = (b2Body *)[[bullets objectAtIndex:currentBullet++] pointerValue];
 		bulletBody->SetTransform(b2Vec2(230.0/PTM_RATIO, (155.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);
 		bulletBody->SetActive(true);
@@ -104,6 +114,8 @@ enum {
 }
 
 - (void) resetGame {
+	
+	[self stopAllActions];
 	
 	// Previous bullets cleanup
 	if (bullets) {
@@ -130,6 +142,17 @@ enum {
 		targets = nil;
 		enemies = nil;
 	}
+	
+	
+	// Only set body & joint to nil, coz the bullet has been destroyed above
+	if (bulletJoint) {
+		bulletBody = nil;
+		bulletJoint = nil;
+	}
+	releasingArm = NO;	
+	
+	score = 0;
+	[self.hud updateScore:score];
 	
 	[self setPosition:CGPointMake(0, 0)]; // we added it to reset the position to the catapult
 	
@@ -241,7 +264,6 @@ enum {
 		[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
 		
 		//self.position = CGPointMake(-480, 0);
-		
 		
 		// contact listener
 		contactListener = new MyContactListener();
@@ -384,6 +406,8 @@ enum {
 	delete m_debugDraw;
 	m_debugDraw = NULL;
 	
+	self.hud = nil;
+	
 	// release bullets
 	[bullets release];
 	
@@ -470,6 +494,14 @@ enum {
 
 -(void) update: (ccTime) dt
 {
+	// if reset detected, reset it
+	if (self.hud.isRestart) {
+		[self resetGame];
+		[self.hud reset];
+		return;
+	}
+	
+	
 	//It is recommended that a fixed time step is used with Box2D for stability
 	//of the simulation, however, we are using a variable time step here.
 	//You need to make an informed choice, the following URL is useful
@@ -481,7 +513,6 @@ enum {
 	// Instruct the world to perform a single step of simulation. It is
 	// generally best to keep the time step and iterations fixed.
 	world->Step(dt, velocityIterations, positionIterations);
-	
 	
 	
 	for(b2Body *b = world->GetBodyList(); b; b=b->GetNext()) {
@@ -503,6 +534,9 @@ enum {
 			// Destroy joint so the bullet will be free
 			world->DestroyJoint(bulletJoint);
 			bulletJoint = nil;
+			
+			// reset combo counter
+			combo = 0;
 			
 			[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
 		}
@@ -545,6 +579,10 @@ enum {
 		explosion.duration = 1.0f;
 		[self addChild:explosion z:11];
 		[explosion release];
+		
+		// calculate the score
+		score += 10 + (combo++) * 5;
+		[self.hud updateScore:score];
 	}
 	
 	// remove everything from the set

@@ -17,6 +17,8 @@
 
 #import "MyContactListener.h"
 
+#import "HUDLayer.h"
+
 //Pixel to metres ratio. Box2D uses metres as the unit for measurement.
 //This ratio defines how many pixels correspond to 1 Box2D "metre"
 //Box2D is optimized for objects of 1x1 metre therefore it makes sense
@@ -51,7 +53,15 @@
 	NSMutableSet *enemies;
 	
 	MyContactListener *contactListener;
+	
+	HUDLayer *_hud;
+	
+	NSInteger score;
+	
+	NSInteger combo; // means combo before next bullet attached
 }
+
+@property (nonatomic, retain) HUDLayer *hud;
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
 +(CCScene *) scene;
