@@ -158,22 +158,33 @@ enum {
 	
 	[self createBullets:4];
 	[self createTargets];
+	
+	CCFiniteTimeAction *camAction1 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)];
+	CCFiniteTimeAction *camAction2 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)];
+	previewing = YES;
 	[self runAction:[CCSequence actions:
-					 [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)],
+					 camAction1,
 					 [CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
 					 [CCDelayTime actionWithDuration:1.0f],
-					 [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)],
+					 camAction2,
+					 [CCCallBlockN actionWithBlock:^(CCNode *node) {
+						previewing = NO;
+					 }],
 					 nil]];
 }
 
 - (void) resetBullet {
+	[self stopActionByTag:1];
+	
 	if ([enemies count] == 0) {
 		// game over
 		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
 		[self.hud showMenu:YES];
 		
 	}else if([self attachBullet]) {
-		[self runAction:[CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)]];
+		CCAction *camAction = [CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)];
+		camAction.tag = 1;
+		[self runAction:camAction];
 	}else {
 		// We can reset the whole scene here
 		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
@@ -282,7 +293,26 @@ enum {
 	UITouch *myTouch = [touches anyObject];
 	CGPoint location = [myTouch locationInView:[myTouch view]];
 	location = [[CCDirector sharedDirector] convertToGL:location];
+	location = [self convertToNodeSpace:location];
 	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+	
+	if (bulletBody != nil) { // only response when tapped on the attached bullet
+		CCNode *bullet = (CCNode*)bulletBody->GetUserData();
+		CGPoint bulletPos = bullet.position;
+		CGRect bulletRect = CGRectMake(
+									   bulletPos.x - bullet.contentSize.width/2,
+									   bulletPos.y - bullet.contentSize.height/2,
+									   bullet.contentSize.width, bullet.contentSize.height);
+		//CGPoint touchInView = [myTouch locationInView:[myTouch view]];
+		
+		if(!CGRectContainsPoint(bulletRect, location)) {
+			NSLog(@"not tapped in rect (%f,%f,%f,%f) (%f,%f)",
+				  bulletRect.origin.x, bulletRect.origin.y,
+				  bulletRect.size.width, bulletRect.size.height,
+				  location.x, location.y);
+			return;
+		}
+	}
 	
 	if(locationWorld.x < armBody->GetWorldCenter().x + 50.0/PTM_RATIO) {
 		
@@ -301,14 +331,42 @@ enum {
 }
 
 - (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	if(mouseJoint == nil) return;
+	CGSize winSize = [[CCDirector sharedDirector] winSize];
 	
-	UITouch *myTouch = [touches anyObject];
-	CGPoint location = [myTouch locationInView:[myTouch view]];
-	location = [[CCDirector sharedDirector] convertToGL:location];
-	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
-	
-	mouseJoint->SetTarget(locationWorld);
+	if(mouseJoint == nil) {
+		// while in previewing, u cant pan anything
+		if (previewing) return;
+		
+		UITouch *myTouch = [touches anyObject];
+		CGPoint previous = [myTouch previousLocationInView:[myTouch view]];
+		CGPoint location = [myTouch locationInView:[myTouch view]];
+		CGPoint delta = ccpSub(location, previous);
+		//delta = ccpMult(delta, 1/PTM_RATIO);
+		
+		
+		[self stopActionByTag:1];
+		NSLog(@"camera move delta (%f, %f), current:(%f,%f)", delta.x, delta.y, self.position.x, self.position.y);
+		//self.position = ccp(self.position.x + delta.x, self.position.y - delta.y);
+		CGPoint target = ccp(delta.x * 10, -delta.y *10);
+		//target.y = MIN(winSize.height - self.position.y, target.y);
+		//target.y = MAX(0, target.y);
+		//target.x = MAX(self.position.x - winSize.width * 2, target.x);
+		//target.x = MIN(self.position.x, target.x);
+		CCMoveBy *moveBy = [CCMoveBy actionWithDuration:1.0f position:target];
+		moveBy.tag = 1;
+		[self runAction:moveBy];
+		//worldBoundary:CGRectMake(0, 0, winSize.width*2, winSize.height)
+	}else{
+		
+		UITouch *myTouch = [touches anyObject];
+		CGPoint location = [myTouch locationInView:[myTouch view]];
+		location = [[CCDirector sharedDirector] convertToGL:location];
+		location = [self convertToNodeSpace:location];
+		//NSLog(@"mouse joint target: (%f, %f)", location.x, location.y);
+		b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+		
+		mouseJoint->SetTarget(locationWorld);
+	}
 	
 }
 
@@ -458,13 +516,13 @@ enum {
 	// Define the ground box shape.
 	b2EdgeShape groundBox;		
 	
-	// bottom
-	groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), b2Vec2(s.width * 2.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
+	// bottom, 4 times length
+	groundBox.Set(b2Vec2(0, FLOOR_HEIGHT/PTM_RATIO), b2Vec2(s.width * 4.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
 	groundBody->CreateFixture(&groundBox,0);
 	
 	// top
-	groundBox.Set(b2Vec2(0, s.height/PTM_RATIO), b2Vec2(s.width * 2.0f/PTM_RATIO, s.height/PTM_RATIO));
-	groundBody->CreateFixture(&groundBox,0);
+	//groundBox.Set(b2Vec2(0, s.height/PTM_RATIO), b2Vec2(s.width * 2.0f/PTM_RATIO, s.height/PTM_RATIO));
+	//groundBody->CreateFixture(&groundBox,0);
 	
 	// left
 	groundBox.Set(b2Vec2(0, s.height/PTM_RATIO), b2Vec2(0,0));
@@ -500,6 +558,7 @@ enum {
 	if (self.hud.isRestart) {
 		[self resetGame];
 		[self.hud reset];
+		[self.hud hideMenu];
 		return;
 	}
 	
@@ -540,6 +599,13 @@ enum {
 			// reset combo counter
 			combo = 0;
 			
+			CGSize winSize = [[CCDirector sharedDirector] winSize];
+			CCAction *camAction = [CCFollow actionWithTarget:(CCNode*)bulletBody->GetUserData()
+											   worldBoundary:CGRectMake(0, 0, winSize.width*2, winSize.height)];
+			camAction.tag = 1;
+			[self runAction:camAction];
+			
+			
 			[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
 		}
 	}
@@ -551,12 +617,20 @@ enum {
 		CGSize screenSize = [CCDirector sharedDirector].winSize;
 		
 		// Move the camera.
+		/*
 		if (position.x > screenSize.width / 2.0f / PTM_RATIO) {
 			// We do this because the position has to be negative to make the scene move to the left
 			myPosition.x = - MIN(screenSize.width * 2.0f - screenSize.width, position.x * PTM_RATIO - screenSize.width / 2.0f);
 			self.position = myPosition;
 		}
+		 */
 	}
+	
+	if(!previewing) { // bounding the viewable rect
+		CGSize screenSize = [CCDirector sharedDirector].winSize;
+		self.position = ccp(MIN(MAX(-screenSize.width, self.position.x), 0), 0);
+	}
+	
 	
 	// Check for impacts
 	std::set<b2Body*>::iterator pos;
