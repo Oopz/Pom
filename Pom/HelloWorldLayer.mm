@@ -21,6 +21,10 @@ enum {
 	kTagParentNode = 1,
 };
 
+typedef NS_ENUM(NSInteger, PomActionTag) {
+    PomActionTagCamera
+};
+
 
 #pragma mark - HelloWorldLayer
 
@@ -174,7 +178,7 @@ enum {
 }
 
 - (void) resetBullet {
-	[self stopActionByTag:1];
+	[self stopActionByTag:PomActionTagCamera];
 	
 	if ([enemies count] == 0) {
 		// game over
@@ -183,13 +187,33 @@ enum {
 		
 	}else if([self attachBullet]) {
 		CCAction *camAction = [CCMoveTo actionWithDuration:2.0f position:CGPointMake(0, 0)];
-		camAction.tag = 1;
+		camAction.tag = PomActionTagCamera;
 		[self runAction:camAction];
 	}else {
 		// We can reset the whole scene here
 		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
 		[self.hud showMenu:NO];
 	}
+}
+
+- (void) moveCamera:(CGPoint)transition withDuration:(NSInteger)duration {
+	
+	if (previewing) return;
+	
+	CGPoint target = ccp(self.position.x + transition.x, self.position.y - transition.y);
+	
+	if (duration == 0) {
+		[self stopActionByTag:PomActionTagCamera];
+		self.position = target;
+	}else {
+		ccTime duraInSec = duration / 1000.0f;
+		CCMoveBy *moveBy = [CCMoveBy actionWithDuration:duraInSec position:target];
+		moveBy.tag = PomActionTagCamera;
+		[self runAction:moveBy];
+	}
+	
+	
+	
 }
 
 -(id) init
@@ -204,7 +228,6 @@ enum {
 		// enable events
 		
 		self.touchEnabled = YES;
-		CGSize s = [CCDirector sharedDirector].winSize;
 				
 		// init physics
 		[self initPhysics];
@@ -330,34 +353,8 @@ enum {
 	
 }
 
-- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-	CGSize winSize = [[CCDirector sharedDirector] winSize];
-	
-	if(mouseJoint == nil) {
-		// while in previewing, u cant pan anything
-		if (previewing) return;
-		
-		UITouch *myTouch = [touches anyObject];
-		CGPoint previous = [myTouch previousLocationInView:[myTouch view]];
-		CGPoint location = [myTouch locationInView:[myTouch view]];
-		CGPoint delta = ccpSub(location, previous);
-		//delta = ccpMult(delta, 1/PTM_RATIO);
-		
-		
-		[self stopActionByTag:1];
-		NSLog(@"camera move delta (%f, %f), current:(%f,%f)", delta.x, delta.y, self.position.x, self.position.y);
-		//self.position = ccp(self.position.x + delta.x, self.position.y - delta.y);
-		CGPoint target = ccp(delta.x * 10, -delta.y *10);
-		//target.y = MIN(winSize.height - self.position.y, target.y);
-		//target.y = MAX(0, target.y);
-		//target.x = MAX(self.position.x - winSize.width * 2, target.x);
-		//target.x = MIN(self.position.x, target.x);
-		CCMoveBy *moveBy = [CCMoveBy actionWithDuration:1.0f position:target];
-		moveBy.tag = 1;
-		[self runAction:moveBy];
-		//worldBoundary:CGRectMake(0, 0, winSize.width*2, winSize.height)
-	}else{
-		
+- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {	
+	if(mouseJoint != nil) {		
 		UITouch *myTouch = [touches anyObject];
 		CGPoint location = [myTouch locationInView:[myTouch view]];
 		location = [[CCDirector sharedDirector] convertToGL:location];
@@ -366,6 +363,17 @@ enum {
 		b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
 		
 		mouseJoint->SetTarget(locationWorld);
+		
+	}else {
+		// pan, available only when bullet is locking
+		if(bulletJoint != nil) {
+			
+			UITouch *myTouch = [touches anyObject];
+			CGPoint location = [myTouch locationInView:[myTouch view]];
+			CGPoint previous = [myTouch previousLocationInView:[myTouch view]];
+			
+			[self moveCamera:ccpSub(location, previous) withDuration:0];
+		}
 	}
 	
 }
@@ -379,6 +387,14 @@ enum {
 		world->DestroyJoint(mouseJoint);
 		mouseJoint = nil;
 	}
+}
+
+- (void) ccTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+	// preserve for fling operation
+	
+	//UITouch *myTouch = [touches anyObject];
+	//[myTouch ]
+	
 }
 
 - (void) createTarget:(NSString *)imageName
@@ -602,7 +618,7 @@ enum {
 			CGSize winSize = [[CCDirector sharedDirector] winSize];
 			CCAction *camAction = [CCFollow actionWithTarget:(CCNode*)bulletBody->GetUserData()
 											   worldBoundary:CGRectMake(0, 0, winSize.width*2, winSize.height)];
-			camAction.tag = 1;
+			camAction.tag = PomActionTagCamera;
 			[self runAction:camAction];
 			
 			
@@ -626,7 +642,7 @@ enum {
 		 */
 	}
 	
-	if(!previewing) { // bounding the viewable rect
+	if(YES) { // always bounding the viewable rect
 		CGSize screenSize = [CCDirector sharedDirector].winSize;
 		self.position = ccp(MIN(MAX(-screenSize.width, self.position.x), 0), 0);
 	}
