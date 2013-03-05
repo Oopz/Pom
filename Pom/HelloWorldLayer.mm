@@ -187,6 +187,12 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 						previewing = NO;
 					 }],
 					 nil]];
+	
+	
+	// show which barrier now
+	[self.hud showMessage:[NSString stringWithFormat:@"Barrier %i !!", currentBarrier]];
+	
+	
 }
 
 - (void) resetBullet {

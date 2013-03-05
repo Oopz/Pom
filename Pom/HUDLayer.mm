@@ -19,6 +19,8 @@
 
 @synthesize itemScore = _itemScore;
 
+@synthesize itemMessage = _itemMessage;
+
 - (id)init
 {
     self = [super init];
@@ -59,6 +61,13 @@
 		[self addChild:_menuAsset];
 		
 		[self hideMenu];
+		
+				
+		// message
+		self.itemMessage = [CCLabelTTF labelWithString:@"foo" fontName:@"Shockheaded" fontSize:92];
+		self.itemMessage.visible = NO;
+		[self addChild:self.itemMessage];
+		
     }
     return self;
 }
@@ -95,7 +104,6 @@
 	menuBL.position = ccp(100, 32);
 	[self addChild:menuBL];
 	
-	
 	// score label
 	//self.itemScore = [CCLabelBMFont labelWithString:@"Score: 0" fntFile:@"Arial.fnt"];
 	self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Shockheaded" fontSize:48];
@@ -104,7 +112,6 @@
 	self.itemScore.position = ccp(winSize.width - _itemScore.contentSize.width/2 - 20.0f, winSize.height - _itemScore.contentSize.height/2 - 10.0f);
 	//self.itemScore.color = ccc3(0, 0, 255);
 	[self addChild:self.itemScore];
-	
 }
 
 - (void) updateScore:(NSInteger)score {
@@ -135,13 +142,31 @@
 }
 
 - (void)showMessage:(NSString *)message {
+	CGSize winSize = [[CCDirector sharedDirector] winSize];
 	
+	// message
+	[self.itemMessage setString:message];
+	self.itemMessage.visible = YES;
+	self.itemMessage.color = ccc3(255, 215, 0);
+	self.itemMessage.scale = 0.0f;
+	self.itemMessage.position = ccp(winSize.width/2, winSize.height/2);
+	
+	[self.itemMessage runAction:
+	 [CCSequence actions:
+	  [CCScaleTo actionWithDuration:1.0f scale:1.0f],
+	  [CCDelayTime actionWithDuration:3.0],
+	  [CCScaleTo actionWithDuration:1.0f scale:0.0f],
+	  [CCCallBlockN actionWithBlock:^(CCNode *node) {
+		 self.itemMessage.visible = NO;
+	  }],
+	  nil]];
 }
 
 - (void)dealloc
 {
     self.menuAsset = nil;
 	self.itemScore = nil;
+	self.itemMessage = nil;
 	
     [super dealloc];
 }

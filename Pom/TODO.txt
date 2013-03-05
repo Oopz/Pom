@@ -13,6 +13,31 @@ Something reference: SpriteHelper + LevelHelper, but they r charging money.
 	http://stackoverflow.com/questions/4228644/using-custom-fonts-in-cocos2d
 	
 	added ttf file to info.plist and apply it in code.
+	fonts resouce: http://www.urbanfonts.com/
+	
+	ccc3 Example Colors:
+
+	white - (255,255,255)
+
+	black - (0,0,0)
+
+	blue - (0,0,255)
+
+	green- (0,255,0)
+
+	red - (255,0,0)
+
+	Grey – (84,84,84)
+
+	Brown – (165,42,42)
+
+	Pink – (255,192,203)
+
+	Purple – (160,32,240)
+
+	Yellow – (255,255,0)
+
+	Gold – (255,215,0)
 
 6. Animation object abstract. I have to place them in a new class to perform.
 

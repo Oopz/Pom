@@ -19,6 +19,8 @@
 	CCMenu *_menuAsset;
 	
 	CCLabelTTF *_itemScore;
+	
+	CCLabelTTF *_itemMessage;
 }
 
 @property (nonatomic, assign) BOOL isNext;
@@ -27,6 +29,7 @@
 
 @property (nonatomic, strong) CCMenu *menuAsset;
 @property (nonatomic, strong) CCLabelTTF *itemScore;
+@property (nonatomic, strong) CCLabelTTF *itemMessage;
 
 - (void) reset;
 
