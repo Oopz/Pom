@@ -232,6 +232,7 @@
 		1B42210A16D7AC2F0086C7C3 /* Arial.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210616D7AC2F0086C7C3 /* Arial.png */; };
 		1B98880A16E5EA0300259BEE /* Barrier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B98880916E5EA0300259BEE /* Barrier.m */; };
 		1B98880D16E62C4D00259BEE /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1B98880C16E62C4D00259BEE /* TODO.txt */; };
+		1B98880F16E6357D00259BEE /* SHOCKHEADED.TTF in Resources */ = {isa = PBXBuildFile; fileRef = 1B98880E16E6357D00259BEE /* SHOCKHEADED.TTF */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -660,6 +661,7 @@
 		1B98880816E5EA0300259BEE /* Barrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Barrier.h; sourceTree = "<group>"; };
 		1B98880916E5EA0300259BEE /* Barrier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Barrier.m; sourceTree = "<group>"; };
 		1B98880C16E62C4D00259BEE /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
+		1B98880E16E6357D00259BEE /* SHOCKHEADED.TTF */ = {isa = PBXFileReference; lastKnownFileType = file; path = SHOCKHEADED.TTF; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1336,6 +1338,7 @@
 		1B42210216D746D90086C7C3 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
+				1B98880E16E6357D00259BEE /* SHOCKHEADED.TTF */,
 				1B42210316D7AC2F0086C7C3 /* Arial-hd.fnt */,
 				1B42210416D7AC2F0086C7C3 /* Arial-hd.png */,
 				1B42210516D7AC2F0086C7C3 /* Arial.fnt */,
@@ -1459,6 +1462,7 @@
 				1B42210916D7AC2F0086C7C3 /* Arial.fnt in Resources */,
 				1B42210A16D7AC2F0086C7C3 /* Arial.png in Resources */,
 				1B98880D16E62C4D00259BEE /* TODO.txt in Resources */,
+				1B98880F16E6357D00259BEE /* SHOCKHEADED.TTF in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

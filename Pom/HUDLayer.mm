@@ -97,7 +97,9 @@
 	
 	
 	// score label
-	self.itemScore = [CCLabelBMFont labelWithString:@"Score: 0" fntFile:@"Arial.fnt"];
+	//self.itemScore = [CCLabelBMFont labelWithString:@"Score: 0" fntFile:@"Arial.fnt"];
+	self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Shockheaded" fontSize:48];
+	self.itemScore.color = ccc3(127, 64, 0);
 	//self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
 	self.itemScore.position = ccp(winSize.width - _itemScore.contentSize.width/2 - 20.0f, winSize.height - _itemScore.contentSize.height/2 - 10.0f);
 	//self.itemScore.color = ccc3(0, 0, 255);

@@ -7,6 +7,12 @@ Something reference: SpriteHelper + LevelHelper, but they r charging money.
 4. Consider a mask shader for the bricks broking effect.
 5. Apply particle effect to the fonts.
 	+ Shows barrier count.
+	
+	Apply TTF to app
+	Reference: 
+	http://stackoverflow.com/questions/4228644/using-custom-fonts-in-cocos2d
+	
+	added ttf file to info.plist and apply it in code.
 
 6. Animation object abstract. I have to place them in a new class to perform.
 
