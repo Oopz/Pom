@@ -1,0 +1,15 @@
+1. Load Barrier from file. (eg. XML)
+2. We need an editor to edit barrier file and of course importer for that is also demanded.
+Something reference: SpriteHelper + LevelHelper, but they r charging money.
+
+3. Paramerize the bricks/enemies data in file described above.
+
+4. Consider a mask shader for the bricks broking effect.
+5. Apply particle effect to the fonts.
+	+ Shows barrier count.
+
+6. Animation object abstract. I have to place them in a new class to perform.
+
+7. Sound effect system is not applied at all.
+
+8. Shop and Skill UI.

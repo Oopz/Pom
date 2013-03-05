@@ -590,9 +590,6 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		[self.hud reset];
 		[self.hud hideMenu];
 		
-		// TODO: here must reload the scene, coz we cant clear the sprites
-		
-		
 		return;
 	}
 	
