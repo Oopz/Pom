@@ -17,6 +17,8 @@
 
 #import "SimpleAudioEngine.h"
 
+#import "Barrier.h"
+
 enum {
 	kTagParentNode = 1,
 };
@@ -147,6 +149,15 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		enemies = nil;
 	}
 	
+	// Clear the sprites which from Barrier file
+	if(miscs) {
+		for (CCSprite *sprite in miscs) {
+			[self removeChild:sprite];
+		}
+		[miscs release];
+		miscs = nil;
+	}
+	
 	
 	// Only set body & joint to nil, coz the bullet has been destroyed above
 	if (bulletJoint) {
@@ -160,8 +171,9 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	[self setPosition:CGPointMake(0, 0)]; // we added it to reset the position to the catapult
 	
+	[self createBarrier];
+	
 	[self createBullets:4];
-	[self createTargets];
 	
 	CCFiniteTimeAction *camAction1 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)];
 	CCFiniteTimeAction *camAction2 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)];
@@ -232,7 +244,10 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		// init physics
 		[self initPhysics];
 		
+		currentBarrier = 1;
+		
 		//Set up sprite
+		/*
 		CCSprite *sprite = [CCSprite spriteWithFile:@"bg.png"];
 		sprite.anchorPoint = CGPointMake(0, 0);
 		[self addChild:sprite z:-1];
@@ -260,6 +275,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		sprite = [CCSprite spriteWithFile:@"fg.png"];
 		sprite.anchorPoint = CGPointMake(0, 0);
 		[self addChild:sprite z:10];
+		*/
 		
 		// Create the catapult's arm
 		CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
@@ -354,7 +370,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 }
 
 - (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {	
-	if(mouseJoint != nil) {		
+	if(mouseJoint != nil) {
 		UITouch *myTouch = [touches anyObject];
 		CGPoint location = [myTouch locationInView:[myTouch view]];
 		location = [[CCDirector sharedDirector] convertToGL:location];
@@ -436,42 +452,30 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 }
 
-- (void) createTargets {
+- (void) createBarrier {
 	[targets release];
 	[enemies release];
+	[miscs release];
+	
 	targets = [[NSMutableSet alloc] init];
 	enemies = [[NSMutableSet alloc] init];
+	miscs = [[NSMutableSet alloc] init];
 	
-	// First block
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(675.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(741.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(741.0, FLOOR_HEIGHT+23.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_3.png" atPosition:CGPointMake(672.0, FLOOR_HEIGHT+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(707.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(707.0, FLOOR_HEIGHT+81.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	
-	[self createTarget:@"head_dog.png" atPosition:CGPointMake(702.0, FLOOR_HEIGHT) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
-	[self createTarget:@"head_cat.png" atPosition:CGPointMake(680.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
-	[self createTarget:@"head_dog.png" atPosition:CGPointMake(740.0, FLOOR_HEIGHT+58.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
-		
-	// 2 bricks at the right of the first block
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(770.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(770.0, FLOOR_HEIGHT+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	
-	// The dog between the blocks
-	[self createTarget:@"head_dog.png" atPosition:CGPointMake(830.0, FLOOR_HEIGHT) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
-	
-	// Second block
-	[self createTarget:@"brick_platform.png" atPosition:CGPointMake(839.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:YES isEnemy:NO];
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(854.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(854.0, FLOOR_HEIGHT+28.0f+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"head_cat.png" atPosition:CGPointMake(881.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:YES isStatic:NO isEnemy:YES];
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f+46.0f) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_1.png" atPosition:CGPointMake(909.0, FLOOR_HEIGHT+28.0f+46.0f+23.0f) rotation:0.0 isCircle:NO isStatic:NO isEnemy:NO];
-	[self createTarget:@"brick_2.png" atPosition:CGPointMake(882.0, FLOOR_HEIGHT+108.0f) rotation:90.0f isCircle:NO isStatic:NO isEnemy:NO];
+	Barrier *barrier = [Barrier getBarrier:currentBarrier];
 	
 	
+	for (BarrierObject *object in barrier.elements) {
+		if(object.isSprite) {
+			CCSprite *sprite = [CCSprite spriteWithFile:object.texture];
+			sprite.position = object.position;
+			sprite.anchorPoint = object.anchor;
+			[self addChild:sprite z:object.zindex];
+			
+			[miscs addObject:sprite];
+		}else{			
+			[self createTarget:object.texture atPosition:object.position rotation:object.rotation isCircle:object.isCircle isStatic:object.isStatic isEnemy:object.isEnemy];
+		}
+	}
 }
 
 -(void) dealloc
@@ -489,6 +493,8 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	[targets release];
 	[enemies release];
+	
+	[miscs release];
 	
 	[super dealloc];
 }	
@@ -575,6 +581,18 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		[self resetGame];
 		[self.hud reset];
 		[self.hud hideMenu];
+		
+		return;
+	}else if(self.hud.isNext) {
+		currentBarrier++;
+		
+		[self resetGame];
+		[self.hud reset];
+		[self.hud hideMenu];
+		
+		// TODO: here must reload the scene, coz we cant clear the sprites
+		
+		
 		return;
 	}
 	

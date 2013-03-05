@@ -12,6 +12,7 @@
 #import "MainScene.h"
 
 @interface HUDLayer : CCLayer {
+	BOOL _isNext;
     BOOL _isPause;
 	BOOL _isRestart;
 	
@@ -20,6 +21,7 @@
 	CCLabelTTF *_itemScore;
 }
 
+@property (nonatomic, assign) BOOL isNext;
 @property (nonatomic, assign) BOOL isPause;
 @property (nonatomic, assign) BOOL isRestart;
 

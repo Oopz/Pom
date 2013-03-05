@@ -11,6 +11,7 @@
 
 @implementation HUDLayer
 
+@synthesize isNext = _isNext;
 @synthesize isPause = _isPause;
 @synthesize isRestart = _isRestart;
 
@@ -29,6 +30,7 @@
 		CGSize winSize = [[CCDirector sharedDirector] winSize];
 		CCMenuItemLabel *itemNext = [CCMenuItemFont itemWithString:@"Next" block:^(id sender) {
 			NSLog(@"next");
+			self.isNext = YES;
 		}];
 		itemNext.tag = 0;
 		itemNext.color = ccc3(0, 0, 255);
@@ -62,6 +64,7 @@
 }
 
 - (void)reset {
+	_isNext = NO;
 	_isPause = NO;
 	_isRestart = NO;
 }

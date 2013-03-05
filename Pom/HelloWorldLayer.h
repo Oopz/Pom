@@ -52,10 +52,13 @@
 	
 	NSMutableSet *targets;
 	NSMutableSet *enemies;
+	NSMutableSet *miscs;
 	
 	MyContactListener *contactListener;
 	
 	HUDLayer *_hud;
+	
+	NSInteger currentBarrier;
 	
 	NSInteger score;
 	

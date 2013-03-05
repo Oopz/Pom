@@ -230,6 +230,7 @@
 		1B42210816D7AC2F0086C7C3 /* Arial-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210416D7AC2F0086C7C3 /* Arial-hd.png */; };
 		1B42210916D7AC2F0086C7C3 /* Arial.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210516D7AC2F0086C7C3 /* Arial.fnt */; };
 		1B42210A16D7AC2F0086C7C3 /* Arial.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210616D7AC2F0086C7C3 /* Arial.png */; };
+		1B98880A16E5EA0300259BEE /* Barrier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B98880916E5EA0300259BEE /* Barrier.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -655,6 +656,8 @@
 		1B42210416D7AC2F0086C7C3 /* Arial-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Arial-hd.png"; sourceTree = "<group>"; };
 		1B42210516D7AC2F0086C7C3 /* Arial.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Arial.fnt; sourceTree = "<group>"; };
 		1B42210616D7AC2F0086C7C3 /* Arial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Arial.png; sourceTree = "<group>"; };
+		1B98880816E5EA0300259BEE /* Barrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Barrier.h; sourceTree = "<group>"; };
+		1B98880916E5EA0300259BEE /* Barrier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Barrier.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -713,6 +716,7 @@
 		1B421C2316D5381B0086C7C3 /* Pom */ = {
 			isa = PBXGroup;
 			children = (
+				1B98880B16E5EA0900259BEE /* Core */,
 				1B421E4416D5381F0086C7C3 /* AppDelegate.h */,
 				1B421E4516D5381F0086C7C3 /* AppDelegate.mm */,
 				1B421E4716D5381F0086C7C3 /* HelloWorldLayer.h */,
@@ -1337,6 +1341,15 @@
 			path = fonts;
 			sourceTree = "<group>";
 		};
+		1B98880B16E5EA0900259BEE /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				1B98880816E5EA0300259BEE /* Barrier.h */,
+				1B98880916E5EA0300259BEE /* Barrier.m */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1612,6 +1625,7 @@
 				1B4220EC16D647710086C7C3 /* MyContactListener.cpp in Sources */,
 				1B4220F216D678070086C7C3 /* MainScene.mm in Sources */,
 				1B42210116D721E30086C7C3 /* HUDLayer.mm in Sources */,
+				1B98880A16E5EA0300259BEE /* Barrier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1729,6 +1743,7 @@
 				1B421E5616D5381F0086C7C3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
