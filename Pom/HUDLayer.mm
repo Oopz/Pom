@@ -64,7 +64,7 @@
 		
 				
 		// message
-		self.itemMessage = [CCLabelTTF labelWithString:@"foo" fontName:@"Shockheaded" fontSize:92];
+		self.itemMessage = [CCLabelTTF labelWithString:@"foo" fontName:@"Yoshitoshi" fontSize:92];
 		self.itemMessage.visible = NO;
 		[self addChild:self.itemMessage];
 		
