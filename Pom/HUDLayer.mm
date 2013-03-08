@@ -144,6 +144,9 @@
 - (void)showMessage:(NSString *)message {
 	CGSize winSize = [[CCDirector sharedDirector] winSize];
 	
+	// FIXME: there is a bug here when this message triggered before disappeared,
+	//		  it will continue the former one action to disppear.
+	
 	// message
 	[self.itemMessage setString:message];
 	self.itemMessage.visible = YES;
@@ -151,15 +154,16 @@
 	self.itemMessage.scale = 0.0f;
 	self.itemMessage.position = ccp(winSize.width/2, winSize.height/2);
 	
-	[self.itemMessage runAction:
-	 [CCSequence actions:
-	  [CCScaleTo actionWithDuration:1.0f scale:1.0f],
-	  [CCDelayTime actionWithDuration:3.0],
-	  [CCScaleTo actionWithDuration:1.0f scale:0.0f],
-	  [CCCallBlockN actionWithBlock:^(CCNode *node) {
-		 self.itemMessage.visible = NO;
-	  }],
-	  nil]];
+	CCSequence *action = [CCSequence actions:
+		[CCScaleTo actionWithDuration:1.0f scale:1.0f],
+		[CCDelayTime actionWithDuration:3.0],
+		[CCScaleTo actionWithDuration:1.0f scale:0.0f],
+		[CCCallBlockN actionWithBlock:^(CCNode *node) {
+			self.itemMessage.visible = NO;
+		}],
+		nil];
+	
+	[self.itemMessage runAction:action];
 }
 
 - (void)dealloc

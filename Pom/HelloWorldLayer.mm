@@ -160,11 +160,10 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	
 	// Only set body & joint to nil, coz the bullet has been destroyed above
-	if (bulletJoint) {
-		world->DestroyJoint(bulletJoint);
+	if (bulletJoint != nil) {
 		bulletJoint = nil;
 	}
-	if(bulletBody) {
+	if(bulletBody != nil) {
 		bulletBody = nil;
 	}
 	releasingArm = NO;	
