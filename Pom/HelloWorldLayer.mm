@@ -268,7 +268,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		// init physics
 		[self initPhysics];
 		
-		currentBarrier = 1;
+		currentBarrier = 2;
 		
 		// game start
 		// At the end of the init method the catapult is still at the zero degree angle

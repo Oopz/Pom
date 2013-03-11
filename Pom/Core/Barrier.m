@@ -64,6 +64,9 @@
 		
 	}else{
 		
+		[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"squirrel_1.png" position:ccp(11.0f, FLOOR_HEIGHT) anchor:ccp(0, 0) zindex:0]];
+		
+		[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"squirrel_2.png" position:ccp(240.0f, FLOOR_HEIGHT) anchor:ccp(0, 0) zindex:9]];
 		
 		// entities
 		[barrier.elements addObject:[[BarrierObject alloc] initWithTexture:@"brick_2.png" position:CGPointMake(475.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO]];
