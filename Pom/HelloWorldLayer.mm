@@ -17,8 +17,9 @@
 
 #import "SimpleAudioEngine.h"
 
-#import "Barrier.h"
+#import "MyCCSprite.h"
 
+#import "Barrier.h"
 #import "BarrierObject.h"
 
 enum {
@@ -76,7 +77,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		bullets = [[NSMutableArray alloc] initWithCapacity:count];
 		for(int i=0; i<count; i++, pos+=delta) {
 			// Create the bullet
-			CCSprite *sprite = [CCSprite spriteWithFile:@"acorn.png"];
+			MyCCSprite *sprite = [MyCCSprite spriteWithFile:@"acorn.png"];
 			[self addChild:sprite z:1];
 			
 			b2BodyDef bulletBodyDef;
@@ -267,7 +268,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		// init physics
 		[self initPhysics];
 		
-		currentBarrier = 2;
+		currentBarrier = 1;
 		
 		// game start
 		// At the end of the init method the catapult is still at the zero degree angle
@@ -375,7 +376,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 }
 
 - (void) createTarget:(BarrierObject *)object {	
-	CCSprite *sprite = [CCSprite spriteWithFile:object.texture];
+	MyCCSprite *sprite = [MyCCSprite spriteWithFile:object.texture];
 	//sprite.userObject=object;
 	sprite.userData = object;// bind BarrierObject to sprite
 	[self addChild:sprite z:1];
@@ -622,6 +623,10 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			world->DestroyJoint(bulletJoint);
 			bulletJoint = nil;
 			
+			// try to add some effect
+			MyCCSprite * node = (MyCCSprite *)bulletBody->GetUserData();
+			[node createEffect];
+			
 			// reset combo counter
 			combo = 0;
 			
@@ -679,23 +684,18 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		b2Body *body = *pos2;
 		
 		CCNode *node = (CCNode *)body->GetUserData();
-		CGPoint position = node.position;
+		
+		// display explosion effect
+		if ([node isKindOfClass:[MyCCSprite class]]) {
+			[(MyCCSprite *)node createAffterEffect];
+		}
+		
+		// let's remove it
 		[self removeChild:node cleanup:YES];
 		world->DestroyBody(body);
 		
 		[targets removeObject:[NSValue valueWithPointer:body]];
 		[enemies removeObject:[NSValue valueWithPointer:body]];
-		
-		CCParticleSun* explosion = [[CCParticleSun alloc] initWithTotalParticles:200];
-		//explosion.emissionRate=1000.0f; // i added it for a faster emission
-		explosion.autoRemoveOnFinish = YES;
-		explosion.startSize = 10.0f;
-		explosion.speed = 70.0f;
-		explosion.anchorPoint = ccp(0.5f, 0.5f);
-		explosion.position = position;
-		explosion.duration = 1.0f;
-		[self addChild:explosion z:11];
-		[explosion release];
 		
 		// calculate the score
 		score += 10 + (combo++) * 5;

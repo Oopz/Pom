@@ -231,6 +231,7 @@
 		1B42210816D7AC2F0086C7C3 /* Arial-hd.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210416D7AC2F0086C7C3 /* Arial-hd.png */; };
 		1B42210916D7AC2F0086C7C3 /* Arial.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210516D7AC2F0086C7C3 /* Arial.fnt */; };
 		1B42210A16D7AC2F0086C7C3 /* Arial.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B42210616D7AC2F0086C7C3 /* Arial.png */; };
+		1B86325A16EE074D00A4BD08 /* MyCCSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B86325916EE074D00A4BD08 /* MyCCSprite.m */; };
 		1B98880A16E5EA0300259BEE /* Barrier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B98880916E5EA0300259BEE /* Barrier.m */; };
 		1B98880D16E62C4D00259BEE /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1B98880C16E62C4D00259BEE /* TODO.txt */; };
 		1B98880F16E6357D00259BEE /* SHOCKHEADED.TTF in Resources */ = {isa = PBXBuildFile; fileRef = 1B98880E16E6357D00259BEE /* SHOCKHEADED.TTF */; };
@@ -662,6 +663,8 @@
 		1B42210416D7AC2F0086C7C3 /* Arial-hd.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Arial-hd.png"; sourceTree = "<group>"; };
 		1B42210516D7AC2F0086C7C3 /* Arial.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Arial.fnt; sourceTree = "<group>"; };
 		1B42210616D7AC2F0086C7C3 /* Arial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Arial.png; sourceTree = "<group>"; };
+		1B86325816EE074D00A4BD08 /* MyCCSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyCCSprite.h; sourceTree = "<group>"; };
+		1B86325916EE074D00A4BD08 /* MyCCSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyCCSprite.m; sourceTree = "<group>"; };
 		1B98880816E5EA0300259BEE /* Barrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Barrier.h; sourceTree = "<group>"; };
 		1B98880916E5EA0300259BEE /* Barrier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Barrier.m; sourceTree = "<group>"; };
 		1B98880C16E62C4D00259BEE /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
@@ -733,6 +736,8 @@
 				1B421E4816D5381F0086C7C3 /* HelloWorldLayer.mm */,
 				1B4220EB16D647710086C7C3 /* MyContactListener.h */,
 				1B4220EA16D647710086C7C3 /* MyContactListener.cpp */,
+				1B86325816EE074D00A4BD08 /* MyCCSprite.h */,
+				1B86325916EE074D00A4BD08 /* MyCCSprite.m */,
 				1B421E4A16D5381F0086C7C3 /* IntroLayer.h */,
 				1B421E4B16D5381F0086C7C3 /* IntroLayer.mm */,
 				1B421E4D16D5381F0086C7C3 /* GLES-Render.h */,
@@ -1644,6 +1649,7 @@
 				1B42210116D721E30086C7C3 /* HUDLayer.mm in Sources */,
 				1B98880A16E5EA0300259BEE /* Barrier.m in Sources */,
 				1B29F0DB16ECCC660093E7B9 /* BarrierObject.m in Sources */,
+				1B86325A16EE074D00A4BD08 /* MyCCSprite.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1712,6 +1718,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = "\"Pom/libs\"";
+				VALIDATE_PRODUCT = NO;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
