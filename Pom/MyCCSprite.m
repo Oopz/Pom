@@ -11,6 +11,38 @@
 
 @implementation MyCCSprite
 
+- (id) initWithFile:(NSString *)filename {
+	
+	self = [super initWithFile:filename];
+	if (self) {
+		
+		
+		
+		const GLchar * fragmentSource = (GLchar*)[[NSString stringWithContentsOfFile:[[CCFileUtils sharedFileUtils] fullPathFromRelativePathIgnoringResolutions:@"Mask.frag"] encoding:NSUTF8StringEncoding error:nil] UTF8String];
+		
+		self.shaderProgram = [[CCGLProgram alloc] initWithVertexShaderByteArray:ccPositionTextureA8Color_vert fragmentShaderByteArray:fragmentSource];
+		
+		[self.shaderProgram addAttribute:kCCAttributeNamePosition index:kCCVertexAttrib_Position];
+		[self.shaderProgram addAttribute:kCCAttributeNameTexCoord index:kCCVertexAttrib_TexCoords];
+		[self.shaderProgram link];
+		[self.shaderProgram updateUniforms];
+		
+		colorRampUniformLocation = glGetUniformLocation(self.shaderProgram->_program, "u_colorRampTexture");
+		glUniform1i(colorRampUniformLocation, 1);
+		
+		colorRampTexture = [[CCTextureCache sharedTextureCache] addImage:@"colorRamp.png"];
+		[colorRampTexture setAliasTexParameters];
+		
+		[self.shaderProgram use];
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, [colorRampTexture name]);
+		glActiveTexture(GL_TEXTURE0);
+		
+	}
+	
+	return self;
+}
+
 - (void) createAffterEffect {
 	//CCParticleExplosion *explosion = [[CCParticleExplosion alloc] initWithTotalParticles:70];
 	
@@ -54,11 +86,8 @@
 	//explosion.startSizeVar = 10.0f;
 	explosion.endSize = kCCParticleStartSizeEqualToEndSize;
 	
-	
-	
-	
 	[self.parent addChild:explosion z:11];
-	[explosion release];
+	[explosion release]; // release it coz it doesn't stick to class variable - particleEffect
 }
 
 - (void) createEffect {

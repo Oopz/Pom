@@ -11,6 +11,9 @@
 
 @interface MyCCSprite : CCSprite {
     CCParticleSystem * particleEffect;
+	
+	CCTexture2D * colorRampTexture;
+	GLuint colorRampUniformLocation;
 }
 
 - (void) createEffect;
