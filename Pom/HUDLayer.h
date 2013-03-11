@@ -20,7 +20,8 @@
 	
 	CCLabelTTF *_itemScore;
 	
-	CCLabelTTF *_itemMessage;
+	CCMenu *_menuButtonAsset;
+	CCMenu *_menuButtonRestart;
 }
 
 @property (nonatomic, assign) BOOL isNext;
@@ -29,14 +30,18 @@
 
 @property (nonatomic, strong) CCMenu *menuAsset;
 @property (nonatomic, strong) CCLabelTTF *itemScore;
-@property (nonatomic, strong) CCLabelTTF *itemMessage;
+
+@property (nonatomic, strong) CCMenu *menuButtonAsset;
+@property (nonatomic, strong) CCMenu *menuButtonRestart;
 
 - (void) reset;
 
 - (void) showMessage:(NSString*)message;
 - (void) showMenu:(BOOL)won;
 - (void) hideMenu;
+- (void) addAsset;
 - (void) showAsset;
+- (void) hideAsset;
 
 - (void) updateScore:(NSInteger)score;
 

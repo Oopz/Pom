@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B29F0DB16ECCC660093E7B9 /* BarrierObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B29F0DA16ECCC660093E7B9 /* BarrierObject.m */; };
 		1B421C1216D5381B0086C7C3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B421C1116D5381B0086C7C3 /* QuartzCore.framework */; };
 		1B421C1416D5381B0086C7C3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B421C1316D5381B0086C7C3 /* OpenGLES.framework */; };
 		1B421C1616D5381B0086C7C3 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B421C1516D5381B0086C7C3 /* OpenAL.framework */; };
@@ -237,6 +238,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1B29F0D916ECCC660093E7B9 /* BarrierObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarrierObject.h; sourceTree = "<group>"; };
+		1B29F0DA16ECCC660093E7B9 /* BarrierObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarrierObject.m; sourceTree = "<group>"; };
 		1B421C0E16D5381B0086C7C3 /* Pom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B421C1116D5381B0086C7C3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1B421C1316D5381B0086C7C3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
@@ -1355,6 +1358,8 @@
 			children = (
 				1B98880816E5EA0300259BEE /* Barrier.h */,
 				1B98880916E5EA0300259BEE /* Barrier.m */,
+				1B29F0D916ECCC660093E7B9 /* BarrierObject.h */,
+				1B29F0DA16ECCC660093E7B9 /* BarrierObject.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -1638,6 +1643,7 @@
 				1B4220F216D678070086C7C3 /* MainScene.mm in Sources */,
 				1B42210116D721E30086C7C3 /* HUDLayer.mm in Sources */,
 				1B98880A16E5EA0300259BEE /* Barrier.m in Sources */,
+				1B29F0DB16ECCC660093E7B9 /* BarrierObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

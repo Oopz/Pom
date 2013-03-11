@@ -19,6 +19,8 @@
 
 #import "Barrier.h"
 
+#import "BarrierObject.h"
+
 enum {
 	kTagParentNode = 1,
 };
@@ -122,6 +124,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 - (void) resetGame {
 	
 	[self stopAllActions];
+	[self.hud hideAsset];
 	
 	// Previous bullets cleanup
 	if (bullets) {
@@ -152,12 +155,24 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	// Clear the sprites which from Barrier file
 	if(miscs) {
 		for (CCSprite *sprite in miscs) {
-			[self removeChild:sprite];
+			[self removeChild:sprite cleanup:YES];
 		}
 		[miscs release];
 		miscs = nil;
 	}
 	
+	// Clear the arm joint before.
+	if(armJoint) {
+		world->DestroyJoint(armJoint);
+	}
+	
+	// Clear the arm body and its sprite before.
+	if(armBody) {
+		CCNode * armSprite = (CCSprite *)armBody->GetUserData();
+		[self removeChild:armSprite cleanup:YES];
+		
+		world->DestroyBody(armBody);
+	}	
 	
 	// Only set body & joint to nil, coz the bullet has been destroyed above
 	if (bulletJoint != nil) {
@@ -166,7 +181,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	if(bulletBody != nil) {
 		bulletBody = nil;
 	}
-	releasingArm = NO;	
+	releasingArm = NO;
 	
 	score = 0;
 	[self.hud updateScore:score];
@@ -180,16 +195,18 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	CCFiniteTimeAction *camAction1 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)];
 	CCFiniteTimeAction *camAction2 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)];
 	previewing = YES;
-	[self runAction:[CCSequence actions:
-					 camAction1,
-					 [CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
-					 [CCDelayTime actionWithDuration:1.0f],
-					 camAction2,
-					 [CCCallBlockN actionWithBlock:^(CCNode *node) {
-						previewing = NO;
-					 }],
-					 nil]];
-	
+	[self runAction:
+	 [CCSequence actions:
+	  camAction1,
+	  [CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
+	  [CCDelayTime actionWithDuration:1.0f],
+	  camAction2,
+	  [CCCallBlockN actionWithBlock:
+	   ^(CCNode *node) {
+		   previewing = NO;
+		   [self.hud showAsset];
+	   }],
+	  nil]];
 	
 	// show which barrier now
 	[self.hud showMessage:[NSString stringWithFormat:@"Barrier %i !!", currentBarrier]];
@@ -203,6 +220,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	if ([enemies count] == 0) {
 		// game over
 		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:2.0f];
+		[self.hud hideAsset];
 		[self.hud showMenu:YES];
 		
 	}else if([self attachBullet]) {
@@ -231,9 +249,6 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		moveBy.tag = PomActionTagCamera;
 		[self runAction:moveBy];
 	}
-	
-	
-	
 }
 
 -(id) init
@@ -252,78 +267,16 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		// init physics
 		[self initPhysics];
 		
-		currentBarrier = 1;
-		
-		//Set up sprite
-		/*
-		CCSprite *sprite = [CCSprite spriteWithFile:@"bg.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		[self addChild:sprite z:-1];
-		
-		sprite = [CCSprite spriteWithFile:@"catapult_base_2.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		sprite.position = CGPointMake(181.0f, FLOOR_HEIGHT);
-		[self addChild:sprite z:0];
-		
-		sprite = [CCSprite spriteWithFile:@"squirrel_1.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		sprite.position = CGPointMake(11.0f, FLOOR_HEIGHT);
-		[self addChild:sprite z:0];
-		
-		sprite = [CCSprite spriteWithFile:@"catapult_base_1.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		sprite.position = CGPointMake(181.0f, FLOOR_HEIGHT);
-		[self addChild:sprite z:9];
-		
-		sprite = [CCSprite spriteWithFile:@"squirrel_2.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		sprite.position = CGPointMake(240.0f, FLOOR_HEIGHT);
-		[self addChild:sprite z:9];
-		
-		sprite = [CCSprite spriteWithFile:@"fg.png"];
-		sprite.anchorPoint = CGPointMake(0, 0);
-		[self addChild:sprite z:10];
-		*/
-		
-		// Create the catapult's arm
-		CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
-		//arm.anchorPoint = CGPointMake(0, 0);
-		//arm.position = CGPointMake(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
-		[self addChild:arm z:1];
-		
-		b2BodyDef armBodyDef;
-		armBodyDef.type = b2_dynamicBody;
-		armBodyDef.linearDamping = 1;
-		armBodyDef.angularDamping = 1;
-		armBodyDef.position.Set(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
-		armBodyDef.userData = arm;
-		armBody = world->CreateBody(&armBodyDef);
-		
-		b2PolygonShape armBox;
-		b2FixtureDef armBoxDef;
-		armBoxDef.shape = &armBox;
-		armBoxDef.density = 0.3F;
-		armBox.SetAsBox(11.0f/PTM_RATIO, 91.0f/PTM_RATIO);
-		armFixture = armBody->CreateFixture(&armBoxDef);
-		
-		// Create a joint to fix the catapult to the floor
-		b2RevoluteJointDef armJointDef;
-		armJointDef.Initialize(groundBody, armBody, b2Vec2(233.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
-		armJointDef.enableMotor = true;
-		armJointDef.enableLimit = true;
-		armJointDef.motorSpeed = -10; //-1260
-		armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);
-		armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);
-		armJointDef.maxMotorTorque = 700;//4800,700
-		
-		armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);
+		currentBarrier = 2;
 		
 		// game start
 		// At the end of the init method the catapult is still at the zero degree angle
 		// so the bullet actually gets attached to the wrong position.
+		//world->Step(0.5, 8, 1);
+		//[self resetGame];
 		[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
 		
-		//self.position = CGPointMake(-480, 0);
+		//self.position = CGPointMake(-480, 0); // camera position
 		
 		// contact listener
 		contactListener = new MyContactListener();
@@ -421,24 +374,21 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 }
 
-- (void) createTarget:(NSString *)imageName
-		   atPosition:(CGPoint)position
-			 rotation:(CGFloat)rotation
-			 isCircle:(BOOL)isCircle
-			 isStatic:(BOOL)isStatic
-			  isEnemy:(BOOL)isEnemy {
-	CCSprite *sprite = [CCSprite spriteWithFile:imageName];
+- (void) createTarget:(BarrierObject *)object {	
+	CCSprite *sprite = [CCSprite spriteWithFile:object.texture];
+	//sprite.userObject=object;
+	sprite.userData = object;// bind BarrierObject to sprite
 	[self addChild:sprite z:1];
 	
 	b2BodyDef bodyDef;
-	bodyDef.type = isStatic?b2_staticBody:b2_dynamicBody;
-	bodyDef.position.Set((position.x+sprite.contentSize.width/2.0f)/PTM_RATIO, (position.y+sprite.contentSize.height/2.0f)/PTM_RATIO);
-	bodyDef.angle = CC_DEGREES_TO_RADIANS(rotation);
+	bodyDef.type = object.isStatic ? b2_staticBody : b2_dynamicBody;
+	bodyDef.position.Set((object.position.x+sprite.contentSize.width/2.0f)/PTM_RATIO, (object.position.y+sprite.contentSize.height/2.0f)/PTM_RATIO);
+	bodyDef.angle = CC_DEGREES_TO_RADIANS(object.rotation);
 	bodyDef.userData = sprite;
 	b2Body *body = world->CreateBody(&bodyDef);
 	
 	b2FixtureDef boxDef;
-	if(isCircle) {
+	if(object.isCircle) {
 		b2CircleShape circle;
 		circle.m_radius = sprite.contentSize.width/2.0f/PTM_RATIO;
 		boxDef.shape = &circle;
@@ -448,8 +398,9 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		boxDef.shape = &box;
 	}
 	
-	if(isEnemy) {
-		boxDef.userData = (void*)1;
+	
+	if(object.isEnemy) {
+		//boxDef.userData = (void*)1;
 		[enemies addObject:[NSValue valueWithPointer:body]];
 	}
 	
@@ -457,7 +408,6 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	body->CreateFixture(&boxDef);
 	
 	[targets addObject:[NSValue valueWithPointer:body]];
-	
 }
 
 - (void) createBarrier {
@@ -471,7 +421,42 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	Barrier *barrier = [Barrier getBarrier:currentBarrier];
 	
+	// -- Set up the catapult arm --	
+	// Create the catapult's arm
+	CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
+	//arm.anchorPoint = CGPointMake(0, 0);
+	//arm.position = CGPointMake(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
+	[self addChild:arm z:1];
 	
+	b2BodyDef armBodyDef;
+	armBodyDef.type = b2_dynamicBody;
+	armBodyDef.linearDamping = 1;
+	armBodyDef.angularDamping = 1;
+	armBodyDef.position.Set(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
+	armBodyDef.userData = arm;
+	armBody = world->CreateBody(&armBodyDef);
+	
+	b2PolygonShape armBox;
+	b2FixtureDef armBoxDef;
+	armBoxDef.shape = &armBox;
+	armBoxDef.density = 0.3F;
+	armBox.SetAsBox(11.0f/PTM_RATIO, 91.0f/PTM_RATIO);
+	armFixture = armBody->CreateFixture(&armBoxDef);
+	
+	// Create a joint to fix the catapult to the floor
+	b2RevoluteJointDef armJointDef;
+	armJointDef.Initialize(groundBody, armBody, b2Vec2(233.0f/PTM_RATIO, FLOOR_HEIGHT/PTM_RATIO));
+	armJointDef.enableMotor = true;
+	armJointDef.enableLimit = true;
+	armJointDef.motorSpeed = -10; //-1260
+	armJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(9);
+	armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);
+	armJointDef.maxMotorTorque = 700;//4800,700
+	
+	armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);	
+	
+	
+	// Create the elements in barrier
 	for (BarrierObject *object in barrier.elements) {
 		if(object.isSprite) {
 			CCSprite *sprite = [CCSprite spriteWithFile:object.texture];
@@ -480,8 +465,9 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			[self addChild:sprite z:object.zindex];
 			
 			[miscs addObject:sprite];
-		}else{			
-			[self createTarget:object.texture atPosition:object.position rotation:object.rotation isCircle:object.isCircle isStatic:object.isStatic isEnemy:object.isEnemy];
+		}else{
+			[self createTarget:object];
+			//[self createTarget:object.texture atPosition:object.position rotation:object.rotation isCircle:object.isCircle isStatic:object.isStatic isEnemy:object.isEnemy];
 		}
 	}
 }
@@ -620,6 +606,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			CCSprite *ballData = (CCSprite *)b->GetUserData();
 			ballData.position = ccp(b->GetPosition().x * PTM_RATIO, b->GetPosition().y * PTM_RATIO);
 			ballData.rotation = -1 * CC_RADIANS_TO_DEGREES(b->GetAngle());
+			
 		}
 	}
 	
@@ -672,20 +659,35 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	
 	// Check for impacts
-	std::set<b2Body*>::iterator pos;
+	std::vector<MyContact>::iterator pos;
+	std::set<b2Body*> toDestroy;
 	for (pos=contactListener->contacts.begin(); pos!=contactListener->contacts.end(); ++pos) {
-		b2Body *body = *pos;
+		MyContact myContact = *pos;
+		float32 impulse = myContact.maxImpulse;
 		
-		CCNode *contactNode = (CCNode*)body->GetUserData();
-		CGPoint position = contactNode.position;
-		[self removeChild:contactNode cleanup:YES];
+		NSLog(@"myContact.maxImpulse=%f", impulse);
+		
+		b2Body *bodyA = myContact.fixtureA->GetBody();
+		b2Body *bodyB = myContact.fixtureB->GetBody();
+		
+		[self strikeBody:bodyA withImpulse:impulse toDestroy:toDestroy];
+		[self strikeBody:bodyB withImpulse:impulse toDestroy:toDestroy];
+	}
+	
+	std::set<b2Body*>::iterator pos2;
+	for (pos2 = toDestroy.begin(); pos2 != toDestroy.end(); ++pos2) {
+		b2Body *body = *pos2;
+		
+		CCNode *node = (CCNode *)body->GetUserData();
+		CGPoint position = node.position;
+		[self removeChild:node cleanup:YES];
 		world->DestroyBody(body);
 		
 		[targets removeObject:[NSValue valueWithPointer:body]];
 		[enemies removeObject:[NSValue valueWithPointer:body]];
 		
 		CCParticleSun* explosion = [[CCParticleSun alloc] initWithTotalParticles:200];
-		//explosion.emissionRate=1000.0f; // i added it to have a faster emission
+		//explosion.emissionRate=1000.0f; // i added it for a faster emission
 		explosion.autoRemoveOnFinish = YES;
 		explosion.startSize = 10.0f;
 		explosion.speed = 70.0f;
@@ -702,6 +704,26 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	// remove everything from the set
 	contactListener->contacts.clear();
+	
+}
+
+- (void) strikeBody:(b2Body*)body withImpulse:(float32)impulse toDestroy:(std::set<b2Body*> &)toDestroy {
+	
+	CCNode *node = (CCNode *)body->GetUserData();
+	if (node && node.userData) { // BarrierObject stored in node.userData
+		BarrierObject *bo = (BarrierObject *)node.userData;
+		BOOL isEnemy = [bo isEnemy];
+		BOOL isStatic = [bo isStatic];
+		
+		int damage = MIN(MAX(0, (int)impulse), 5);
+		bo.life -= damage;
+		
+		if(!isStatic){
+			if(bo.life <= 0) {
+				toDestroy.insert(body);
+			}
+		}
+	}
 	
 }
 

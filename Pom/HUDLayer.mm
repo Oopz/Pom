@@ -19,7 +19,8 @@
 
 @synthesize itemScore = _itemScore;
 
-@synthesize itemMessage = _itemMessage;
+@synthesize menuButtonAsset = _menuButtonAsset;
+@synthesize menuButtonRestart = _menuButtonRestart;
 
 - (id)init
 {
@@ -27,7 +28,7 @@
     if (self) {
 		[self reset];
 		
-		[self showAsset];
+		[self addAsset];
 		
 		CGSize winSize = [[CCDirector sharedDirector] winSize];
 		CCMenuItemLabel *itemNext = [CCMenuItemFont itemWithString:@"Next" block:^(id sender) {
@@ -62,23 +63,18 @@
 		
 		[self hideMenu];
 		
-				
-		// message
-		self.itemMessage = [CCLabelTTF labelWithString:@"foo" fontName:@"Yoshitoshi" fontSize:92];
-		self.itemMessage.visible = NO;
-		[self addChild:self.itemMessage];
-		
     }
     return self;
 }
 
-- (void)reset {
+- (void) reset {
 	_isNext = NO;
 	_isPause = NO;
 	_isRestart = NO;
 }
 
-- (void)showAsset {
+- (void) addAsset {
+	
 	CGSize winSize = [[CCDirector sharedDirector] winSize];
 	
 	// restart icon
@@ -86,10 +82,10 @@
 		[self callbackRestart:sender];
 	}];
 	
-	CCMenu *menuBR = [CCMenu menuWithItems:itemRestart, nil];
-	menuBR.position = ccp(winSize.width - 48, 32);
-	[self addChild:menuBR];
-	
+	self.menuButtonRestart = [CCMenu menuWithItems:itemRestart, nil];
+	self.menuButtonRestart.position = ccp(winSize.width - 48, 32);
+	self.menuButtonRestart.visible = NO;
+	[self addChild:self.menuButtonRestart];	
 	
 	// menu icon
 	CCMenuItemImage *itemShowMenu = [CCMenuItemImage itemWithNormalImage:@"btn_round_foo_off.png" selectedImage:@"btn_round_foo_on.png" block:^(id sender) {
@@ -100,18 +96,31 @@
 		}
 	}];
 	
-	CCMenu *menuBL = [CCMenu menuWithItems:itemShowMenu, nil];
-	menuBL.position = ccp(100, 32);
-	[self addChild:menuBL];
+	self.menuButtonAsset = [CCMenu menuWithItems:itemShowMenu, nil];
+	self.menuButtonAsset.position = ccp(100, 32);
+	self.menuButtonAsset.visible = NO;
+	[self addChild:self.menuButtonAsset];
 	
 	// score label
 	//self.itemScore = [CCLabelBMFont labelWithString:@"Score: 0" fntFile:@"Arial.fnt"];
+	//self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
 	self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Shockheaded" fontSize:48];
 	self.itemScore.color = ccc3(127, 64, 0);
-	//self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
 	self.itemScore.position = ccp(winSize.width - _itemScore.contentSize.width/2 - 20.0f, winSize.height - _itemScore.contentSize.height/2 - 10.0f);
-	//self.itemScore.color = ccc3(0, 0, 255);
 	[self addChild:self.itemScore];
+		
+}
+
+- (void) hideAsset {
+	self.menuButtonAsset.visible = NO;
+	self.menuButtonRestart.visible = NO;
+	self.itemScore.visible = NO;
+}
+
+- (void) showAsset {
+	self.menuButtonAsset.visible = YES;
+	self.menuButtonRestart.visible = YES;
+	self.itemScore.visible = YES;
 }
 
 - (void) updateScore:(NSInteger)score {
@@ -146,31 +155,33 @@
 	
 	// FIXME: there is a bug here when this message triggered before disappeared,
 	//		  it will continue the former one action to disppear.
-	
+		
 	// message
-	[self.itemMessage setString:message];
-	self.itemMessage.visible = YES;
-	self.itemMessage.color = ccc3(255, 215, 0);
-	self.itemMessage.scale = 0.0f;
-	self.itemMessage.position = ccp(winSize.width/2, winSize.height/2);
+	CCLabelTTF * itemMessage = [CCLabelTTF labelWithString:message fontName:@"Yoshitoshi" fontSize:92];
+	[self addChild:itemMessage];
+	
+	itemMessage.color = ccc3(255, 215, 0);
+	itemMessage.scale = 0.0f;
+	itemMessage.position = ccp(winSize.width/2, winSize.height/2);
 	
 	CCSequence *action = [CCSequence actions:
 		[CCScaleTo actionWithDuration:1.0f scale:1.0f],
 		[CCDelayTime actionWithDuration:3.0],
 		[CCScaleTo actionWithDuration:1.0f scale:0.0f],
 		[CCCallBlockN actionWithBlock:^(CCNode *node) {
-			self.itemMessage.visible = NO;
+			[self removeChild:itemMessage];
 		}],
 		nil];
 	
-	[self.itemMessage runAction:action];
+	[itemMessage runAction:action];
 }
 
 - (void)dealloc
 {
     self.menuAsset = nil;
 	self.itemScore = nil;
-	self.itemMessage = nil;
+	self.menuButtonAsset = nil;
+	self.menuButtonRestart = nil;
 	
     [super dealloc];
 }

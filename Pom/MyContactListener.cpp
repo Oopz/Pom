@@ -8,7 +8,6 @@
 
 #include "MyContactListener.h"
 
-
 MyContactListener::MyContactListener() : contacts() {
 	
 }
@@ -30,26 +29,27 @@ void MyContactListener::PreSolve(b2Contact *contact, const b2Manifold *oldManifo
 }
 
 void MyContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse) {
-	bool isAEnemy = contact->GetFixtureA()->GetUserData() != NULL;
-	bool isBEnemy = contact->GetFixtureB()->GetUserData() != NULL;
-	if (isAEnemy || isBEnemy) {
-		// Should the body break?
-		int32 count = contact->GetManifold()->pointCount;
+	// Should the body break?
+	int32 count = contact->GetManifold()->pointCount;
+	
+	float32 maxImpulse = 0.0f;
+	for (int32 i = 0; i<count; ++i) {
+		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+	}
+	
+	float stamina = 0.5f;//1.0f
+	
+	if (maxImpulse > stamina) {
+		/*
+		 // Flag the enemy(ies) for breaking.
+		 if(isAObject)
+		 contacts.insert(contact->GetFixtureA()->GetBody());
+		 if(isBObject)
+		 contacts.insert(contact->GetFixtureB()->GetBody());
+		 */
 		
-		float32 maxImpulse = 0.0f;
-		for (int32 i = 0; i<count; ++i) {
-			maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-		}
-		
-		float stamina = 0.5f;//1.0f
-		
-		if (maxImpulse > stamina) {
-			// Flag the enemy(ies) for breaking.
-			if(isAEnemy)
-				contacts.insert(contact->GetFixtureA()->GetBody());
-			if(isBEnemy)
-				contacts.insert(contact->GetFixtureB()->GetBody());
-		}
+		MyContact myContact = {contact->GetFixtureA(), contact->GetFixtureB(), maxImpulse};
+		contacts.push_back(myContact);
 	}
 }
 

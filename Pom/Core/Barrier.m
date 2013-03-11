@@ -7,41 +7,9 @@
 //
 
 #import "Barrier.h"
+#import "BarrierObject.h"
 
 #define FLOOR_HEIGHT 62.0f
-
-@implementation BarrierObject
-
-- (id) initWithTexture:(NSString *)texture position:(CGPoint)position rotation:(float)rotation isCircle:(BOOL)isCircle isStatic:(BOOL)isStatic isEnemy:(BOOL)isEnemy {
-	
-    self = [super init];
-    if (self) {
-		self.isSprite = NO;
-        self.texture = texture;
-		self.position = position;
-		self.rotation = rotation;
-		self.isCircle = isCircle;
-		self.isStatic = isStatic;
-		self.isEnemy = isEnemy;
-		
-		// not to define anchor point
-    }
-    return self;
-}
-
-- (id) initAsSprite:(NSString *)texture position:(CGPoint)position anchor:(CGPoint)anchor zindex:(float)zindex {
-	self = [super init];
-	if(self) {
-		self.isSprite = YES;
-		self.texture = texture;
-		self.anchor = anchor;
-		self.position = position;
-		self.zindex = zindex;
-	}
-	return self;
-}
-
-@end
 
 
 
