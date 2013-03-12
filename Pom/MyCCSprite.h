@@ -10,11 +10,18 @@
 #import "cocos2d.h"
 
 @interface MyCCSprite : CCSprite {
+	float elapsed;
+	
     CCParticleSystem * particleEffect;
 	
 	CCTexture2D * colorRampTexture;
 	GLuint colorRampUniformLocation;
+	GLuint timeUniformLocation;
+	GLuint flagUniformLocation;
 }
+
+- (void) enableMaskEffect;
+- (void) disableMaskEffect;
 
 - (void) createEffect;
 - (void) removeEffect;

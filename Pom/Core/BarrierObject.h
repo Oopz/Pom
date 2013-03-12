@@ -22,6 +22,7 @@
 @property (nonatomic, assign) BOOL isStatic;
 @property (nonatomic, assign) BOOL isEnemy;
 
+@property (nonatomic, assign) int maxlife;
 @property (nonatomic, assign) int life;
 
 - (id) initWithTexture:(NSString*)texture position:(CGPoint)position rotation:(float)rotation isCircle:(BOOL)isCircle isStatic:(BOOL)isStatic isEnemy:(BOOL)isEnemy;

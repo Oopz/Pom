@@ -24,8 +24,10 @@
 		self.isEnemy = isEnemy;
 		
 		if (isEnemy) {
+			self.maxlife = 1;
 			self.life = 1;
 		}else {
+			self.maxlife = 5;
 			self.life = 5;			
 		}
 		

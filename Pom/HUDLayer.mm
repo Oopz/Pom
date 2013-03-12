@@ -36,26 +36,26 @@
 			self.isNext = YES;
 		}];
 		itemNext.tag = 0;
-		itemNext.color = ccc3(0, 0, 255);
+		itemNext.color = ccc3(0, 255, 0);
 		CCMenuItemLabel *itemResume = [CCMenuItemFont itemWithString:@"Resume" block:^(id sender) {
 			NSLog(@"resume");
 			[self hideMenu];
 		}];
 		itemResume.tag = 1;
-		itemResume.color = ccc3(0, 0, 255);
+		itemResume.color = ccc3(0, 255, 0);
 		CCMenuItemLabel *itemRestart = [CCMenuItemFont itemWithString:@"Restart" block:^(id sender) {
 			NSLog(@"restart");
 			[self hideMenu];
 			[self callbackRestart:sender];
 		}];
 		itemRestart.tag = 2;
-		itemRestart.color = ccc3(0, 0, 255);
+		itemRestart.color = ccc3(0, 255, 0);
 		CCMenuItemLabel *itemQuit = [CCMenuItemFont itemWithString:@"Quit" block:^(id sender) {
 			NSLog(@"quit");
 			[[CCDirector sharedDirector] replaceScene:[CCTransitionFade transitionWithDuration:1.0 scene:[MainScene node]]];
 		}];
 		itemQuit.tag = 3;
-		itemQuit.color = ccc3(0, 0, 255);
+		itemQuit.color = ccc3(0, 255, 0);
 		
 		self.menuAsset = [CCMenu menuWithItems: itemNext, itemResume, itemRestart, itemQuit, nil];
 		self.menuAsset.position = ccp(winSize.width/2, winSize.height/2);

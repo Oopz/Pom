@@ -15,8 +15,8 @@
 	
 	self = [super initWithFile:filename];
 	if (self) {
-		
-		
+		// Shader Effect
+		// Reference to: http://www.raywenderlich.com/10862/how-to-create-cool-effects-with-custom-shaders-in-opengl-es-2-0-and-cocos2d-2-x
 		
 		const GLchar * fragmentSource = (GLchar*)[[NSString stringWithContentsOfFile:[[CCFileUtils sharedFileUtils] fullPathFromRelativePathIgnoringResolutions:@"Mask.frag"] encoding:NSUTF8StringEncoding error:nil] UTF8String];
 		
@@ -30,6 +30,12 @@
 		colorRampUniformLocation = glGetUniformLocation(self.shaderProgram->_program, "u_colorRampTexture");
 		glUniform1i(colorRampUniformLocation, 1);
 		
+		timeUniformLocation = glGetUniformLocation(self.shaderProgram->_program, "u_time");
+		
+		flagUniformLocation = glGetUniformLocation(self.shaderProgram->_program, "u_flag");
+		glUniform1i(flagUniformLocation, 0);
+		
+		// Load your mask texture and disable linear interpolation on it, since you want raw values here.
 		colorRampTexture = [[CCTextureCache sharedTextureCache] addImage:@"colorRamp.png"];
 		[colorRampTexture setAliasTexParameters];
 		
@@ -38,9 +44,21 @@
 		glBindTexture(GL_TEXTURE_2D, [colorRampTexture name]);
 		glActiveTexture(GL_TEXTURE0);
 		
+		
+		[self scheduleUpdate];
 	}
 	
 	return self;
+}
+
+- (void) enableMaskEffect {
+	[self.shaderProgram use];
+	glUniform1i(flagUniformLocation, 1);
+}
+
+- (void) disableMaskEffect {
+	[self.shaderProgram use];
+	glUniform1i(flagUniformLocation, 0);
 }
 
 - (void) createAffterEffect {
@@ -120,19 +138,20 @@
 	[particleEffect setPositionType:kCCPositionTypeRelative];
 	
 	[self.parent addChild:particleEffect z:0];
-	
-	[self scheduleUpdate];
 }
 
 - (void) removeEffect {
 	[particleEffect removeFromParentAndCleanup:YES];
 	particleEffect = nil;
-	
-	[self unscheduleUpdate];
 }
 
 - (void) update:(ccTime)delta {
 	[super update:delta];
+	
+	elapsed += delta;
+	
+	[self.shaderProgram use];
+	glUniform1f(timeUniformLocation, elapsed);
 	
 	if(particleEffect) {
 		//CGPoint pos = [self convertToWorldSpace:self.position];

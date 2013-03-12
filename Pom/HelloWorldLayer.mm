@@ -721,6 +721,11 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		if(!isStatic){
 			if(bo.life <= 0) {
 				toDestroy.insert(body);
+			}else{
+				float percentage = bo.life / bo.maxlife;
+				if (percentage < 0.8f && [node isKindOfClass:[MyCCSprite class]]) {
+					[(MyCCSprite *)node enableMaskEffect];
+				}
 			}
 		}
 	}
