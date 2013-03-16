@@ -63,10 +63,13 @@
 		[barrier.elements addObject:[[BarrierObject alloc] initWithTexture:@"brick_2.png" position:CGPointMake(882.0, FLOOR_HEIGHT+108.0f) rotation:90.0f isCircle:NO isStatic:NO isEnemy:NO]];
 		
 	}else{
+		//[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"bg.png" position:ccp(0, 0) anchor:ccp(0, 0) zindex:-1]];
 		
-		[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"squirrel_1.png" position:ccp(11.0f, FLOOR_HEIGHT) anchor:ccp(0, 0) zindex:0]];
+		//[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"brs_split_char.png" position:ccp(140.0f, FLOOR_HEIGHT) anchor:ccp(0, 0) zindex:0]];
 		
-		[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"squirrel_2.png" position:ccp(240.0f, FLOOR_HEIGHT) anchor:ccp(0, 0) zindex:9]];
+		//[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"brs_split_gun.png" position:ccp(175.0f, FLOOR_HEIGHT + 36) anchor:ccp(0, 0) zindex:9]];
+				
+		[barrier.elements addObject:[[BarrierObject alloc] initAsSprite:@"fg.png" position:ccp(0, 0) anchor:ccp(0, 0) zindex:10]];
 		
 		// entities
 		[barrier.elements addObject:[[BarrierObject alloc] initWithTexture:@"brick_2.png" position:CGPointMake(475.0, FLOOR_HEIGHT) rotation:0.0f isCircle:NO isStatic:NO isEnemy:NO]];

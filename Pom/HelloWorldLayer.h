@@ -37,6 +37,9 @@
 	b2Body *armBody;
 	b2Body *groundBody;
 	
+	b2Body *fortBody; // TODO: set nil when reset
+	b2RevoluteJoint *fortJoint; // TODO: set nil when reset
+		
 	b2RevoluteJoint *armJoint;
 	
 	b2MouseJoint *mouseJoint;
@@ -63,6 +66,10 @@
 	NSInteger score;
 	
 	NSInteger combo; // means combo before next bullet attached
+	
+	NSInteger preservingFactor; // 0 ~ 100
+	
+	BOOL enableGravity;
 }
 
 @property (nonatomic, retain) HUDLayer *hud;

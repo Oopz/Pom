@@ -9,6 +9,8 @@
 
 #import "cocos2d.h"
 
+#import "MyAnimBatchNode.h"
+
 @class MainSceneLayer;
 
 
@@ -23,17 +25,9 @@
 
 
 @interface MainSceneLayer : CCLayer {
-	CCSprite *_bgElement;
-	CCAction *_bgElementAction1;
-	CCAction *_bgElementAction2;
 	
 	CCSprite *_bgStatic;
 }
-
-
-@property (nonatomic, retain) CCSprite * bgElement;
-@property (nonatomic, retain) CCAction * bgElementAction1;
-@property (nonatomic, retain) CCAction * bgElementAction2;
 
 @property (nonatomic, retain) CCSprite * bgStatic;
 

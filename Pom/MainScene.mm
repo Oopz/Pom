@@ -13,10 +13,6 @@
 
 @implementation MainSceneLayer
 
-@synthesize bgElement = _bgElement;
-@synthesize bgElementAction1 = _bgElementAction1;
-@synthesize bgElementAction2 = _bgElementAction2;
-
 @synthesize bgStatic = _bgStatic;
 
 - (id) init {
@@ -53,37 +49,21 @@
 		// static background
 		self.bgStatic = [CCSprite spriteWithFile:@"bg_static.png"];
 		self.bgStatic.position = ccp(winSize.width/2, winSize.height/2);
-		[self addChild:_bgStatic z:-1];
-		
+		[self addChild:_bgStatic z:-1];		
 		
 		
 		// background animate
-		[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"bear_anim.plist"];
-		CCSpriteBatchNode *spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"bear_anim.png"];
-		[self addChild:spriteSheet z:2];
-		
-		NSMutableArray *bgAnimFrames = [NSMutableArray array];
-		for(int i=1; i<=8; ++i) {
-			[bgAnimFrames addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"bear%d.png", i]]];
-		}
-		
-		CCAnimation *bgAnim = [CCAnimation animationWithSpriteFrames:bgAnimFrames delay:0.1f];
-		self.bgElement = [CCSprite spriteWithSpriteFrameName:@"bear1.png"];
-		_bgElement.position = ccp(winSize.width/2, _bgElement.contentSize.height/2 + 20);
-		self.bgElementAction1 = [CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:bgAnim]];
-		[_bgElement runAction:_bgElementAction1];
-		[spriteSheet addChild:_bgElement];
-		
-		
-		
+		MyAnimBatchNode *bearNode = [MyAnimBatchNode batchNodeWithName:@"bear"];
+		// coz the content size only can be acknowledged by each CCSprite frame, but BatchNode can't tell
+		//bearNode.position = ccp(winSize.width/2, bearFrame.contentSize.height/2 + 20);
+		bearNode.position = ccp(winSize.width/2, 80);
+		[self addChild:bearNode z:2];
+				
 	}
 	return self;
 }
 
 - (void)dealloc {
-	self.bgElement = nil;
-	self.bgElementAction1 = nil;
-	self.bgElementAction2 = nil;
 	
 	self.bgStatic = nil;
 	

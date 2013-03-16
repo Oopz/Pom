@@ -9,11 +9,30 @@
 #import "HUDLayer.h"
 
 
+@implementation HUDCCMenuItemImage {
+}
+
+- (void) selected {
+	[super selected];
+	// Coz parent is CCMenuItem and grandpa is HUDLayer, set it self.parent.parent.
+	[(HUDLayer*)self.parent.parent performSelector:self.onPressDown];
+}
+
+- (void) unselected {
+	[super unselected];
+	[(HUDLayer*)self.parent.parent performSelector:self.onPressUp];
+}
+
+@end
+
+
 @implementation HUDLayer
 
 @synthesize isNext = _isNext;
 @synthesize isPause = _isPause;
 @synthesize isRestart = _isRestart;
+@synthesize isPreserving = _isPreserving;
+@synthesize isEjecting = _isEjecting;
 
 @synthesize menuAsset = _menuAsset;
 
@@ -21,6 +40,7 @@
 
 @synthesize menuButtonAsset = _menuButtonAsset;
 @synthesize menuButtonRestart = _menuButtonRestart;
+@synthesize menuButtonEject = _menuButtonEject;
 
 - (id)init
 {
@@ -71,6 +91,8 @@
 	_isNext = NO;
 	_isPause = NO;
 	_isRestart = NO;
+	_isPreserving = NO;
+	_isEjecting = NO;
 }
 
 - (void) addAsset {
@@ -83,32 +105,93 @@
 	}];
 	
 	self.menuButtonRestart = [CCMenu menuWithItems:itemRestart, nil];
-	self.menuButtonRestart.position = ccp(winSize.width - 48, 32);
+	self.menuButtonRestart.position = ccp(winSize.width - 40.0f, winSize.height - 40.0f);
 	self.menuButtonRestart.visible = NO;
 	[self addChild:self.menuButtonRestart];	
 	
-	// menu icon
+	// display menu icon
 	CCMenuItemImage *itemShowMenu = [CCMenuItemImage itemWithNormalImage:@"btn_round_foo_off.png" selectedImage:@"btn_round_foo_on.png" block:^(id sender) {
-		if(self.menuAsset.visible) {
-			[self hideMenu];
-		}else{
-			[self showMenu:NO];
+			if(self.menuAsset.visible) {
+				[self hideMenu];
+			}else{
+				[self showMenu:NO];
+			}
 		}
-	}];
+	];
 	
 	self.menuButtonAsset = [CCMenu menuWithItems:itemShowMenu, nil];
-	self.menuButtonAsset.position = ccp(100, 32);
+	self.menuButtonAsset.position = ccp(40.0f, winSize.height - 40.0f);
 	self.menuButtonAsset.visible = NO;
 	[self addChild:self.menuButtonAsset];
 	
 	// score label
 	//self.itemScore = [CCLabelBMFont labelWithString:@"Score: 0" fntFile:@"Arial.fnt"];
 	//self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
-	self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Shockheaded" fontSize:48];
-	self.itemScore.color = ccc3(127, 64, 0);
-	self.itemScore.position = ccp(winSize.width - _itemScore.contentSize.width/2 - 20.0f, winSize.height - _itemScore.contentSize.height/2 - 10.0f);
+	self.itemScore = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Yoshitoshi" fontSize:24];//Shockheaded
+	self.itemScore.color = ccc3(255, 215, 0);
+	self.itemScore.position = ccp(winSize.width/2, _itemScore.contentSize.height/2 + 2);
 	[self addChild:self.itemScore];
+	
+	
+	// preserving power to shoot icon
+	/*
+	HUDCCMenuItemImage *itemShowPreserving = [HUDCCMenuItemImage itemWithNormalImage:@"eject.png" selectedImage:@"eject.png"];
+	itemShowPreserving.onPressDown = @selector(onEjectPressDown:);
+	itemShowPreserving.onPressUp = @selector(onEjectPressUp:);
+	itemShowPreserving.rotation = -30;
+	itemShowPreserving.tag = 101;
+	self.menuButtonEject = [CCMenu menuWithItems:itemShowPreserving, nil];
+	self.menuButtonEject.position = ccp(winSize.width - 80, 80);
+	self.menuButtonEject.visible = YES;
+	[self addChild:self.menuButtonEject];
+	*/
+	
+	
+	
+	// anim Eject icon
+	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"eject_anim.plist"];
+	
+	NSMutableArray *animFrames = [NSMutableArray array];
+	for (int i=1; i<=32; ++i) {
+		CCSpriteFrame *spriteFrame = [[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"eject%d.png", i]];
 		
+		if (spriteFrame) {
+			[animFrames addObject:spriteFrame];	
+		}else{
+			break;
+		}
+	}
+	
+	CCAnimation *anim = [CCAnimation animationWithSpriteFrames:animFrames delay:0.5f];
+	CCSprite *animSprite = [CCSprite spriteWithSpriteFrameName:@"eject1.png"];
+	//animSprite.position = ccp(winSize.width - 80, 80);
+	CCAction *animAction = [CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:anim]];
+	[animSprite runAction:animAction];
+	//[self addChild:animSprite];
+	
+	HUDCCMenuItemImage *itemShowPreserving = [HUDCCMenuItemImage itemWithNormalSprite:animSprite selectedSprite:nil];
+	itemShowPreserving.onPressDown = @selector(onEjectPressDown:);
+	itemShowPreserving.onPressUp = @selector(onEjectPressUp:);
+	itemShowPreserving.rotation = -30;
+	self.menuButtonEject = [CCMenu menuWithItems:itemShowPreserving, nil];
+	self.menuButtonEject.position = ccp(winSize.width - animSprite.contentSize.width/2 - 20, animSprite.contentSize.height/2 + 20);
+	self.menuButtonEject.visible = YES;
+	[self addChild:self.menuButtonEject];
+	
+
+}
+
+- (void) onEjectPressDown:(id) sender {
+	self.isPreserving = YES;
+	self.isEjecting = NO;
+	NSLog(@"Preserving power...");
+}
+
+- (void) onEjectPressUp:(id) sender {
+	self.isPreserving = NO;
+	self.isEjecting = YES;
+	
+	NSLog(@"Eject!!");
 }
 
 - (void) hideAsset {
@@ -121,6 +204,14 @@
 	self.menuButtonAsset.visible = YES;
 	self.menuButtonRestart.visible = YES;
 	self.itemScore.visible = YES;
+}
+
+- (void) showEject {
+	self.menuButtonEject.visible = YES;
+}
+
+- (void) hdieEject {
+	self.menuButtonEject.visible = NO;
 }
 
 - (void) updateScore:(NSInteger)score {
@@ -182,6 +273,7 @@
 	self.itemScore = nil;
 	self.menuButtonAsset = nil;
 	self.menuButtonRestart = nil;
+	self.menuButtonEject = nil;
 	
     [super dealloc];
 }

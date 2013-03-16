@@ -103,25 +103,6 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	}
 }
 
-- (BOOL) attachBullet {
-	if(bulletJoint) {// if any bullet attached
-		NSLog(@"Bullet has been there!");
-		return YES;
-	}else if(currentBullet < [bullets count]) {
-		bulletBody = (b2Body *)[[bullets objectAtIndex:currentBullet++] pointerValue];
-		bulletBody->SetTransform(b2Vec2(230.0/PTM_RATIO, (155.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);
-		bulletBody->SetActive(true);
-		
-		b2WeldJointDef weldJointDef;
-		weldJointDef.Initialize(bulletBody, armBody, b2Vec2(230.0f/PTM_RATIO, (155.0f+FLOOR_HEIGHT)/PTM_RATIO));
-		weldJointDef.collideConnected = false;
-		
-		bulletJoint = (b2WeldJoint *)world->CreateJoint(&weldJointDef);
-		return YES;
-	}
-	return NO;
-}
-
 - (void) resetGame {
 	
 	[self stopAllActions];
@@ -184,6 +165,8 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	}
 	releasingArm = NO;
 	
+	preservingFactor = 0;
+	
 	score = 0;
 	[self.hud updateScore:score];
 	
@@ -199,7 +182,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	[self runAction:
 	 [CCSequence actions:
 	  camAction1,
-	  [CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
+	  //[CCCallFuncN actionWithTarget:self selector:@selector(attachBullet)],
 	  [CCDelayTime actionWithDuration:1.0f],
 	  camAction2,
 	  [CCCallBlockN actionWithBlock:
@@ -235,147 +218,30 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	}
 }
 
-- (void) moveCamera:(CGPoint)transition withDuration:(NSInteger)duration {
-	
-	if (previewing) return;
-	
-	CGPoint target = ccp(self.position.x + transition.x, self.position.y - transition.y);
-	
-	if (duration == 0) {
-		[self stopActionByTag:PomActionTagCamera];
-		self.position = target;
-	}else {
-		ccTime duraInSec = duration / 1000.0f;
-		CCMoveBy *moveBy = [CCMoveBy actionWithDuration:duraInSec position:target];
-		moveBy.tag = PomActionTagCamera;
-		[self runAction:moveBy];
+- (BOOL) attachBullet {
+	if(bulletJoint) {// if any bullet attached
+		NSLog(@"Bullet has been there!");
+		return YES;
+	}else if(currentBullet < [bullets count]) {
+		bulletBody = (b2Body *)[[bullets objectAtIndex:currentBullet++] pointerValue];
+		//bulletBody->SetTransform(b2Vec2(230.0/PTM_RATIO, (120.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);//155.0
+		bulletBody->SetTransform(b2Vec2(20.0/PTM_RATIO, (40.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);//155.0
+		bulletBody->SetActive(false);
+		
+		/*
+		b2WeldJointDef weldJointDef;
+		weldJointDef.Initialize(bulletBody, armBody, b2Vec2(230.0f/PTM_RATIO, (120.0f+FLOOR_HEIGHT)/PTM_RATIO));//155.0
+		weldJointDef.collideConnected = false;
+		
+		bulletJoint = (b2WeldJoint *)world->CreateJoint(&weldJointDef);
+		*/
+		
+		return YES;
 	}
+	return NO;
 }
 
--(id) init
-{
-	if( (self=[super init])) {
-		// init music
-		[[SimpleAudioEngine sharedEngine] setEnabled:FALSE];
-		[[SimpleAudioEngine sharedEngine] preloadBackgroundMusic:@"bgm-test.caf"];
-		[[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"bgm-test.caf"];
-		
-		
-		// enable events
-		
-		self.touchEnabled = YES;
-				
-		// init physics
-		[self initPhysics];
-		
-		currentBarrier = 2;
-		
-		// game start
-		// At the end of the init method the catapult is still at the zero degree angle
-		// so the bullet actually gets attached to the wrong position.
-		//world->Step(0.5, 8, 1);
-		//[self resetGame];
-		[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
-		
-		//self.position = CGPointMake(-480, 0); // camera position
-		
-		// contact listener
-		contactListener = new MyContactListener();
-		world->SetContactListener(contactListener);
-		
-		[self scheduleUpdate];
-	}
-	return self;
-}
-
-- (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-	if(mouseJoint != nil) return;
-	
-	UITouch *myTouch = [touches anyObject];
-	CGPoint location = [myTouch locationInView:[myTouch view]];
-	location = [[CCDirector sharedDirector] convertToGL:location];
-	location = [self convertToNodeSpace:location];
-	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
-	
-	if (bulletBody != nil) { // only response when tapped on the attached bullet
-		CCNode *bullet = (CCNode*)bulletBody->GetUserData();
-		CGPoint bulletPos = bullet.position;
-		CGRect bulletRect = CGRectMake(
-									   bulletPos.x - bullet.contentSize.width/2,
-									   bulletPos.y - bullet.contentSize.height/2,
-									   bullet.contentSize.width, bullet.contentSize.height);
-		//CGPoint touchInView = [myTouch locationInView:[myTouch view]];
-		
-		if(!CGRectContainsPoint(bulletRect, location)) {
-			NSLog(@"not tapped in rect (%f,%f,%f,%f) (%f,%f)",
-				  bulletRect.origin.x, bulletRect.origin.y,
-				  bulletRect.size.width, bulletRect.size.height,
-				  location.x, location.y);
-			return;
-		}
-	}
-	
-	if(locationWorld.x < armBody->GetWorldCenter().x + 50.0/PTM_RATIO) {
-		
-		// When you set up a mouse joint, you have to give it two bodies.
-		// The first isn't used, but the convention is to use the ground body.
-		// The second is the body you want to move.
-		b2MouseJointDef md;
-		md.bodyA = groundBody;
-		md.bodyB = armBody;
-		md.target = locationWorld;
-		md.maxForce = 2000;
-		
-		mouseJoint = (b2MouseJoint *)world->CreateJoint(&md);
-	}
-	
-}
-
-- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {	
-	if(mouseJoint != nil) {
-		UITouch *myTouch = [touches anyObject];
-		CGPoint location = [myTouch locationInView:[myTouch view]];
-		location = [[CCDirector sharedDirector] convertToGL:location];
-		location = [self convertToNodeSpace:location];
-		//NSLog(@"mouse joint target: (%f, %f)", location.x, location.y);
-		b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
-		
-		mouseJoint->SetTarget(locationWorld);
-		
-	}else {
-		// pan, available only when bullet is locking
-		if(bulletJoint != nil) {
-			
-			UITouch *myTouch = [touches anyObject];
-			CGPoint location = [myTouch locationInView:[myTouch view]];
-			CGPoint previous = [myTouch previousLocationInView:[myTouch view]];
-			
-			[self moveCamera:ccpSub(location, previous) withDuration:0];
-		}
-	}
-	
-}
-
-- (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-	if (mouseJoint != nil) {
-		if (armJoint->GetJointAngle() >= CC_DEGREES_TO_RADIANS(10)) {//20
-			releasingArm = YES;
-		}
-		
-		world->DestroyJoint(mouseJoint);
-		mouseJoint = nil;
-	}
-}
-
-- (void) ccTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-	// preserve for fling operation
-	
-	//UITouch *myTouch = [touches anyObject];
-	//[myTouch ]
-	
-}
-
-- (void) createTarget:(BarrierObject *)object {	
+- (void) createTarget:(BarrierObject *)object {
 	MyCCSprite *sprite = [MyCCSprite spriteWithFile:object.texture];
 	//sprite.userObject=object;
 	sprite.userData = object;// bind BarrierObject to sprite
@@ -411,37 +277,30 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	[targets addObject:[NSValue valueWithPointer:body]];
 }
 
-- (void) createBarrier {
-	[targets release];
-	[enemies release];
-	[miscs release];
+- (void) createFort {
 	
-	targets = [[NSMutableSet alloc] init];
-	enemies = [[NSMutableSet alloc] init];
-	miscs = [[NSMutableSet alloc] init];
 	
-	Barrier *barrier = [Barrier getBarrier:currentBarrier];
-	
-	// -- Set up the catapult arm --	
+	// -- Set up the catapult arm --
 	// Create the catapult's arm
-	CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
+	//CCSprite *arm = [CCSprite spriteWithFile:@"catapult_arm.png"];
 	//arm.anchorPoint = CGPointMake(0, 0);
 	//arm.position = CGPointMake(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
-	[self addChild:arm z:1];
+	//[self addChild:arm z:1];
 	
+	/*
 	b2BodyDef armBodyDef;
 	armBodyDef.type = b2_dynamicBody;
 	armBodyDef.linearDamping = 1;
 	armBodyDef.angularDamping = 1;
-	armBodyDef.position.Set(230.0f/PTM_RATIO, (FLOOR_HEIGHT+91.0f)/PTM_RATIO);
-	armBodyDef.userData = arm;
+	armBodyDef.position.Set(330.0f/PTM_RATIO, (FLOOR_HEIGHT+61.0f)/PTM_RATIO);//230.0, 91.0
+	//armBodyDef.userData = arm;
 	armBody = world->CreateBody(&armBodyDef);
 	
 	b2PolygonShape armBox;
 	b2FixtureDef armBoxDef;
 	armBoxDef.shape = &armBox;
 	armBoxDef.density = 0.3F;
-	armBox.SetAsBox(11.0f/PTM_RATIO, 91.0f/PTM_RATIO);
+	armBox.SetAsBox(2.0f/PTM_RATIO, 91.0f/PTM_RATIO);//11.0
 	armFixture = armBody->CreateFixture(&armBoxDef);
 	
 	// Create a joint to fix the catapult to the floor
@@ -454,7 +313,66 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	armJointDef.upperAngle = CC_DEGREES_TO_RADIANS(75);
 	armJointDef.maxMotorTorque = 700;//4800,700
 	
-	armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);	
+	armJoint = (b2RevoluteJoint*)world->CreateJoint(&armJointDef);
+	*/
+	
+	
+	
+	
+	// ---- set up our fort and gun ----
+	// character
+	CCSprite *fortSprite = [CCSprite spriteWithFile:@"brs_split_char.png"];
+	fortSprite.position = ccp(60.0f, FLOOR_HEIGHT);
+	fortSprite.anchorPoint = ccp(0, 0);
+	[self addChild:fortSprite z:0];
+	[miscs addObject:fortSprite];
+		
+	// the gun
+	CCSprite *gunSprite = [CCSprite spriteWithFile:@"brs_split_gun.png"];
+	gunSprite.position = ccp(105.0f, FLOOR_HEIGHT + 45);
+	gunSprite.anchorPoint = ccp(0, 0.5);
+	gunSprite.rotation = -30;
+	[self addChild:gunSprite z:9];
+	[miscs addObject:gunSprite];
+	
+	b2BodyDef fortBodyDef;
+	fortBodyDef.type = b2_dynamicBody;
+	fortBodyDef.linearDamping = 1;
+	fortBodyDef.angularDamping = 1;
+	fortBodyDef.position.Set(105.0f/PTM_RATIO, (FLOOR_HEIGHT + 40.0)/PTM_RATIO);
+	fortBodyDef.userData = gunSprite;
+	fortBody = world->CreateBody(&fortBodyDef);
+	b2CircleShape fortBox;
+	b2FixtureDef fortBoxDef;
+	fortBoxDef.shape = &fortBox;
+	fortBoxDef.density = 1.0f;
+	fortBox.m_radius = 40.0f / PTM_RATIO;
+	fortBody->CreateFixture(&fortBoxDef);
+	//fortBody->SetTransform(fortBody->GetPosition(), CC_DEGREES_TO_RADIANS(30));
+	
+	b2RevoluteJointDef fortJointDef;
+	fortJointDef.Initialize(groundBody, fortBody, b2Vec2(105.0f/PTM_RATIO, (FLOOR_HEIGHT + 40.0)/PTM_RATIO));
+	fortJointDef.enableLimit = true;
+	fortJointDef.lowerAngle = CC_DEGREES_TO_RADIANS(-30);
+	fortJointDef.upperAngle = CC_DEGREES_TO_RADIANS(60);
+	fortJoint = (b2RevoluteJoint*)world->CreateJoint(&fortJointDef);
+	
+	
+	
+}
+
+- (void) createBarrier {
+	[targets release];
+	[enemies release];
+	[miscs release];
+	
+	targets = [[NSMutableSet alloc] init];
+	enemies = [[NSMutableSet alloc] init];
+	miscs = [[NSMutableSet alloc] init];
+	
+	Barrier *barrier = [Barrier getBarrier:currentBarrier];
+	
+	[self createFort];
 	
 	
 	// Create the elements in barrier
@@ -471,6 +389,211 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			//[self createTarget:object.texture atPosition:object.position rotation:object.rotation isCircle:object.isCircle isStatic:object.isStatic isEnemy:object.isEnemy];
 		}
 	}
+}
+
+
+- (void) moveCamera:(CGPoint)transition withDuration:(NSInteger)duration {
+	
+	if (previewing) return;
+	
+	CGPoint target = ccp(self.position.x + transition.x, self.position.y - transition.y);
+	
+	if (duration == 0) {
+		[self stopActionByTag:PomActionTagCamera];
+		self.position = target;
+	}else {
+		ccTime duraInSec = duration / 1000.0f;
+		CCMoveBy *moveBy = [CCMoveBy actionWithDuration:duraInSec position:target];
+		moveBy.tag = PomActionTagCamera;
+		[self runAction:moveBy];
+	}
+}
+
+-(id) init
+{
+	if( (self=[super init])) {
+		
+		// init music
+		[[SimpleAudioEngine sharedEngine] setEnabled:FALSE];
+		[[SimpleAudioEngine sharedEngine] preloadBackgroundMusic:@"bgm-test.caf"];
+		[[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"bgm-test.caf"];
+		
+		
+		// enable events
+		
+		self.touchEnabled = YES;
+		
+		enableGravity = YES;
+				
+		// init physics
+		[self initPhysics];
+		
+		currentBarrier = 2;
+		
+		// game start
+		// At the end of the init method the catapult is still at the zero degree angle
+		// so the bullet actually gets attached to the wrong position.
+		//world->Step(0.5, 8, 1);
+		//[self resetGame];
+		//[self performSelector:@selector(resetGame) withObject:nil afterDelay:0.5f];
+		
+		//self.position = CGPointMake(-480, 0); // camera position
+		
+		// contact listener
+		contactListener = new MyContactListener();
+		world->SetContactListener(contactListener);
+		
+		[self scheduleUpdate];
+	}
+	return self;
+}
+
+- (void) onEnterTransitionDidFinish {
+	[super onEnterTransitionDidFinish];
+	
+	// game start while layer loaded
+	NSLog(@"-------Setting up game environment-------");
+	[self resetGame];
+	
+	[self attachBullet];
+}
+
+- (BOOL) isPoint:(CGPoint&)point inBody:(b2Body*)body {
+	if (body != nil) { // only response when tapped on the attached bullet
+		CCNode *node = (CCNode*)body->GetUserData();
+		
+		CGPoint bulletPos;
+		CGRect bulletRect;
+		if (node) { // if CCNode available, pick it to compare
+			bulletPos = node.position;
+			CGPoint anchor = node.anchorPoint;
+			bulletPos.x = bulletPos.x - (anchor.x - 0.5) * node.contentSize.width;
+			bulletPos.y = bulletPos.y - (anchor.y - 0.5) * node.contentSize.height;
+			/*
+			bulletRect = CGRectMake(
+					bulletPos.x - node.contentSize.width/2,
+					bulletPos.y - node.contentSize.height/2,
+					node.contentSize.width, node.contentSize.height);
+			*/
+			bulletRect = [node boundingBox];
+		}else { // if CCNode unavailable, take phy point with a 40*40 box
+			bulletPos = ccp(
+					body->GetPosition().x * PTM_RATIO,
+					body->GetPosition().y * PTM_RATIO);
+			bulletRect = CGRectMake(bulletPos.x - 20.0f, bulletPos.y - 20.0f, 40.0f, 40.0f);
+		}
+		
+		if(!CGRectContainsPoint(bulletRect, point)) {
+			NSLog(@"not tapped in rect (%f,%f,%f,%f) (%f,%f)",
+				  bulletRect.origin.x, bulletRect.origin.y,
+				  bulletRect.size.width, bulletRect.size.height,
+				  point.x, point.y);
+		}else {
+			return YES;
+		}
+	}
+	
+	return NO;
+}
+
+- (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {	
+	//if(mouseJoint != nil) return;
+	
+	UITouch *myTouch = [touches anyObject];
+	CGPoint location = [myTouch locationInView:[myTouch view]]; // where the touch occurs
+	location = [[CCDirector sharedDirector] convertToGL:location];
+	location = [self convertToNodeSpace:location];
+	b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+	
+	/*
+	if(![self isPoint:location inBody:bulletBody]) {
+		return;
+	}
+	
+	if(locationWorld.x < armBody->GetWorldCenter().x + 50.0/PTM_RATIO) {		
+		// When you set up a mouse joint, you have to give it two bodies.
+		// The first isn't used, but the convention is to use the ground body.
+		// The second is the body you want to move.
+		b2MouseJointDef md;
+		md.bodyA = groundBody;
+		md.bodyB = armBody;
+		md.target = locationWorld;
+		md.maxForce = 2000;
+		
+		mouseJoint = (b2MouseJoint *)world->CreateJoint(&md);
+	}
+	*/
+	
+	// if mouseJoint existed, clear it
+	if(mouseJoint != nil) {		
+		world->DestroyJoint(mouseJoint);
+		mouseJoint = nil;
+	}
+	
+	// check whether inside fort body
+	if(![self isPoint:location inBody:fortBody]) {
+		return;
+	}
+	
+	// When you set up a mouse joint, you have to give it two bodies.
+	// The first isn't used, but the convention is to use the ground body.
+	// The second is the body you want to move.
+	b2MouseJointDef md;
+	md.bodyA = groundBody;
+	md.bodyB = fortBody;
+	md.target = locationWorld;
+	md.maxForce = 2000;
+	
+	mouseJoint = (b2MouseJoint *)world->CreateJoint(&md);
+	
+}
+
+- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+	
+	if(mouseJoint != nil) {
+		UITouch *myTouch = [touches anyObject];
+		CGPoint location = [myTouch locationInView:[myTouch view]];
+		location = [[CCDirector sharedDirector] convertToGL:location];
+		location = [self convertToNodeSpace:location];
+		//NSLog(@"mouse joint target: (%f, %f)", location.x, location.y);
+		b2Vec2 locationWorld = b2Vec2(location.x/PTM_RATIO, location.y/PTM_RATIO);
+		
+		mouseJoint->SetTarget(locationWorld);
+		
+	}else {
+		// pan, available only when bullet is locking
+		if(bulletBody) {
+			
+			UITouch *myTouch = [touches anyObject];
+			CGPoint location = [myTouch locationInView:[myTouch view]];
+			CGPoint previous = [myTouch previousLocationInView:[myTouch view]];
+			
+			[self moveCamera:ccpSub(location, previous) withDuration:0];
+		}
+	}
+	
+}
+
+- (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+	
+	/*
+	if (mouseJoint != nil) {
+		if (armJoint->GetJointAngle() >= CC_DEGREES_TO_RADIANS(10)) {//20
+			releasingArm = YES;
+		}
+		
+		world->DestroyJoint(mouseJoint);
+		mouseJoint = nil;
+	}
+	*/
+}
+
+- (void) ccTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+	// preserve for fling operation
+	
+	//UITouch *myTouch = [touches anyObject];
+	//[myTouch ]
+	
 }
 
 -(void) dealloc
@@ -500,7 +623,11 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	CGSize s = [[CCDirector sharedDirector] winSize];
 	
 	b2Vec2 gravity;
-	gravity.Set(0.0f, -10.0f);
+	if (enableGravity) {
+		gravity.Set(0.0f, -10.0f);
+	}else {
+		gravity.SetZero();		
+	}
 	world = new b2World(gravity);
 	
 	
@@ -612,9 +739,10 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	}
 	
 	// Arm is being released.
+	/*
 	if (releasingArm && bulletJoint) {
 		
-		if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(10)) {
+		if (armJoint->GetJointAngle() <= CC_DEGREES_TO_RADIANS(30)) { // 10
 			
 			// Check if the arm reached the end so we can return the limits
 			releasingArm = NO;
@@ -640,6 +768,62 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			[self performSelector:@selector(resetBullet) withObject:nil afterDelay:5.0f];
 		}
 	}
+	*/
+	
+	if (releasingArm) {
+		releasingArm = NO;
+		preservingFactor = 0;
+		
+		if (bulletBody) {
+			
+			// try to add some effect
+			MyCCSprite * node = (MyCCSprite *)bulletBody->GetUserData();
+			[node createEffect];
+			
+			// reset combo counter
+			combo = 0;
+			
+			CGSize winSize = [[CCDirector sharedDirector] winSize];
+			CCAction *camAction = [CCFollow actionWithTarget:(CCNode*)bulletBody->GetUserData()
+											   worldBoundary:CGRectMake(0, 0, winSize.width*2, winSize.height)];
+			camAction.tag = PomActionTagCamera;
+			[self runAction:camAction];
+			
+			[self performSelector:@selector(resetBullet) withObject:nil afterDelay:3.0f];
+			
+			bulletBody = nil; // set bulletBody nil to unlock camera locking to it
+		}
+	}
+	
+	if(self.hud.isPreserving) {
+		// TODO: increase power
+		preservingFactor = (int)min(100, ++preservingFactor);
+		NSLog(@"Preserving power factor to %d", preservingFactor);
+		
+	}else if(self.hud.isEjecting) {
+		self.hud.isEjecting = NO;
+		
+		float32 angle = fortBody->GetAngle();
+		b2Vec2 pos = fortBody->GetPosition();
+		
+		NSLog(@"Eject at (%f, %f) with angle (%f)", pos.x * PTM_RATIO, pos.y * PTM_RATIO, CC_RADIANS_TO_DEGREES(angle));
+		
+		// TODO: set position of bullet and give a impulse
+		if (bulletBody) {
+			releasingArm = YES;
+			bulletBody->SetActive(true);
+			
+			// i have defined fort with radius 40.0f above in createFort
+			b2Vec2 bulletPos = b2Vec2(pos.x + 40.0f/PTM_RATIO * cos(angle), pos.y + 40.0f/PTM_RATIO * sin(angle));
+			
+			bulletBody->SetTransform(bulletPos, 0);
+			
+			float power = preservingFactor / 5.0f;
+			b2Vec2 impulse = b2Vec2(power * cos(angle), power * sin(angle));
+			bulletBody->ApplyLinearImpulse(impulse, bulletBody->GetPosition());
+		}
+		
+	}
 	
 	// Bullet is moving.
 	if(bulletBody && bulletJoint == nil) {
@@ -654,7 +838,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			myPosition.x = - MIN(screenSize.width * 2.0f - screenSize.width, position.x * PTM_RATIO - screenSize.width / 2.0f);
 			self.position = myPosition;
 		}
-		 */
+		*/
 	}
 	
 	if(YES) { // always bounding the viewable rect
