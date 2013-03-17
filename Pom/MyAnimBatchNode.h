@@ -13,6 +13,7 @@
 }
 
 @property (nonatomic, assign) float animDelay;
+@property (nonatomic, assign) CGSize estimateSize;
 
 + (MyAnimBatchNode *)batchNodeWithName:(NSString*)name;
 

@@ -37,7 +37,7 @@ void MyContactListener::PostSolve(b2Contact *contact, const b2ContactImpulse *im
 		maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
 	}
 	
-	float stamina = 0.5f;//1.0f
+	float stamina = 1.0f;//1.0f
 	
 	if (maxImpulse > stamina) {
 		/*

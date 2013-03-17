@@ -56,7 +56,8 @@
 		MyAnimBatchNode *bearNode = [MyAnimBatchNode batchNodeWithName:@"bear"];
 		// coz the content size only can be acknowledged by each CCSprite frame, but BatchNode can't tell
 		//bearNode.position = ccp(winSize.width/2, bearFrame.contentSize.height/2 + 20);
-		bearNode.position = ccp(winSize.width/2, 80);
+		//bearNode.position = ccp(winSize.width/2, 80);
+		bearNode.position = ccp(winSize.width/2, bearNode.estimateSize.height/2 + 20);
 		[self addChild:bearNode z:2];
 				
 	}

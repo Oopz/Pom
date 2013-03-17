@@ -19,7 +19,6 @@
 
 #import "MyCCSprite.h"
 
-#import "Barrier.h"
 #import "BarrierObject.h"
 
 enum {
@@ -63,7 +62,8 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	return scene;
 }
 
-- (void) createBullets:(int)count {
+- (void) createBullets {
+	int count = [cartridge.objects count];
 	currentBullet = 0;
 	CGFloat pos = 62.0f;
 	
@@ -76,10 +76,13 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		
 		bullets = [[NSMutableArray alloc] initWithCapacity:count];
 		for(int i=0; i<count; i++, pos+=delta) {
-			// Create the bullet
-			MyCCSprite *sprite = [MyCCSprite spriteWithFile:@"acorn.png"];
-			[self addChild:sprite z:1];
+			BarrierObject *bulletObject = [cartridge.objects objectAtIndex:i];
 			
+			// Create the bullet
+			MyCCSprite *sprite = [MyCCSprite spriteWithFile:bulletObject.texture];
+			sprite.userData = bulletObject;
+			[self addChild:sprite z:1];
+						
 			b2BodyDef bulletBodyDef;
 			bulletBodyDef.type = b2_dynamicBody;
 			bulletBodyDef.bullet = true;
@@ -88,14 +91,22 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			b2Body * bullet = world->CreateBody(&bulletBodyDef);
 			bullet->SetActive(false);
 			
-			b2CircleShape circle;
-			circle.m_radius = 15.0/PTM_RATIO;
 			
 			b2FixtureDef ballShapeDef;
-			ballShapeDef.shape = &circle;
-			ballShapeDef.density = 0.8f;
-			ballShapeDef.restitution = 0.2f;
-			ballShapeDef.friction = 0.99f;
+			if(bulletObject.isCircle) {
+				b2CircleShape circle;
+				circle.m_radius = bulletObject.radius/PTM_RATIO;
+				ballShapeDef.shape = &circle;
+			}else {
+				b2PolygonShape box;
+				// as a rect
+				box.SetAsBox(bulletObject.radius/PTM_RATIO, 1.0f/PTM_RATIO);
+				ballShapeDef.shape = &box;
+			}
+			
+			ballShapeDef.density = bulletObject.density;
+			ballShapeDef.restitution = bulletObject.restitution;
+			ballShapeDef.friction = bulletObject.friction;
 			bullet->CreateFixture(&ballShapeDef);
 			
 			[bullets addObject:[NSValue valueWithPointer:bullet]];
@@ -174,7 +185,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	[self createBarrier];
 	
-	[self createBullets:4];
+	[self createBullets];
 	
 	CCFiniteTimeAction *camAction1 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(-480.0f, 0.0f)];
 	CCFiniteTimeAction *camAction2 = [CCMoveTo actionWithDuration:1.5f position:CGPointMake(0, 0)];
@@ -219,10 +230,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 }
 
 - (BOOL) attachBullet {
-	if(bulletJoint) {// if any bullet attached
-		NSLog(@"Bullet has been there!");
-		return YES;
-	}else if(currentBullet < [bullets count]) {
+	if(currentBullet < [bullets count]) {
 		bulletBody = (b2Body *)[[bullets objectAtIndex:currentBullet++] pointerValue];
 		//bulletBody->SetTransform(b2Vec2(230.0/PTM_RATIO, (120.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);//155.0
 		bulletBody->SetTransform(b2Vec2(20.0/PTM_RATIO, (40.0f+FLOOR_HEIGHT)/PTM_RATIO), 0.0f);//155.0
@@ -266,7 +274,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	}
 	
 	
-	if(object.isEnemy) {
+	if(object.type == BOT_Enemy) {
 		//boxDef.userData = (void*)1;
 		[enemies addObject:[NSValue valueWithPointer:body]];
 	}
@@ -328,7 +336,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	[miscs addObject:fortSprite];
 		
 	// the gun
-	CCSprite *gunSprite = [CCSprite spriteWithFile:@"brs_split_gun.png"];
+	MyCCSprite *gunSprite = [MyCCSprite spriteWithFile:@"brs_split_gun.png"];
 	gunSprite.position = ccp(105.0f, FLOOR_HEIGHT + 45);
 	gunSprite.anchorPoint = ccp(0, 0.5);
 	gunSprite.rotation = -30;
@@ -344,6 +352,7 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	fortBody = world->CreateBody(&fortBodyDef);
 	b2CircleShape fortBox;
 	b2FixtureDef fortBoxDef;
+	fortBoxDef.isSensor = true;
 	fortBoxDef.shape = &fortBox;
 	fortBoxDef.density = 1.0f;
 	fortBox.m_radius = 40.0f / PTM_RATIO;
@@ -372,12 +381,11 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	
 	Barrier *barrier = [Barrier getBarrier:currentBarrier];
 	
-	[self createFort];
-	
+	[self createFort];	
 	
 	// Create the elements in barrier
 	for (BarrierObject *object in barrier.elements) {
-		if(object.isSprite) {
+		if(object.type == BOT_Sprite) {
 			CCSprite *sprite = [CCSprite spriteWithFile:object.texture];
 			sprite.position = object.position;
 			sprite.anchorPoint = object.anchor;
@@ -418,13 +426,14 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		[[SimpleAudioEngine sharedEngine] preloadBackgroundMusic:@"bgm-test.caf"];
 		[[SimpleAudioEngine sharedEngine] playBackgroundMusic:@"bgm-test.caf"];
 		
-		
 		// enable events
 		
 		self.touchEnabled = YES;
 		
 		enableGravity = YES;
-				
+		
+		cartridge = [[Cartridge alloc] init];
+		
 		// init physics
 		[self initPhysics];
 		
@@ -605,6 +614,8 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	m_debugDraw = NULL;
 	
 	self.hud = nil;
+	
+	[cartridge release];
 	
 	// release bullets
 	[bullets release];
@@ -800,6 +811,33 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		preservingFactor = (int)min(100, ++preservingFactor);
 		NSLog(@"Preserving power factor to %d", preservingFactor);
 		
+		if (bulletBody) {			
+			float32 angle = fortBody->GetAngle();
+			b2Vec2 pos = fortBody->GetPosition();
+			
+			// i have defined fort with radius 40.0f above in createFort
+			b2Vec2 bulletPos = b2Vec2(pos.x + 40.0f/PTM_RATIO * cos(angle), pos.y + 40.0f/PTM_RATIO * sin(angle));
+			
+			bulletBody->SetTransform(bulletPos, 0);
+			
+			// test particle system, i should place it to bullet class
+			if(preservingFactor == 1) {				
+				CCParticleSun *assembleEffect = [[CCParticleSun alloc] initWithTotalParticles:1000];
+				assembleEffect.emissionRate=500.0f; // i added it for a faster emission
+				assembleEffect.autoRemoveOnFinish = YES;
+				assembleEffect.startSize = 20.0f;
+				assembleEffect.speed = 40.0f;
+				assembleEffect.anchorPoint = ccp(0.5f, 0.5f);
+				assembleEffect.duration = 5;
+				assembleEffect.position = ccp(bulletPos.x * PTM_RATIO, bulletPos.y * PTM_RATIO);
+				assembleEffect.gravity = ccp(-80, 0);
+				assembleEffect.positionType = kCCPositionTypeRelative;
+				assembleEffect.emitterMode = kCCParticleModeGravity;
+				[self addChild:assembleEffect];
+			}
+			
+		}
+		
 	}else if(self.hud.isEjecting) {
 		self.hud.isEjecting = NO;
 		
@@ -818,33 +856,16 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 			
 			bulletBody->SetTransform(bulletPos, 0);
 			
-			float power = preservingFactor / 5.0f;
+			float power = preservingFactor / 2.0f;
 			b2Vec2 impulse = b2Vec2(power * cos(angle), power * sin(angle));
 			bulletBody->ApplyLinearImpulse(impulse, bulletBody->GetPosition());
 		}
 		
 	}
 	
-	// Bullet is moving.
-	if(bulletBody && bulletJoint == nil) {
-		b2Vec2 position = bulletBody->GetPosition();
-		CGPoint myPosition = self.position;
-		CGSize screenSize = [CCDirector sharedDirector].winSize;
-		
-		// Move the camera.
-		/*
-		if (position.x > screenSize.width / 2.0f / PTM_RATIO) {
-			// We do this because the position has to be negative to make the scene move to the left
-			myPosition.x = - MIN(screenSize.width * 2.0f - screenSize.width, position.x * PTM_RATIO - screenSize.width / 2.0f);
-			self.position = myPosition;
-		}
-		*/
-	}
-	
-	if(YES) { // always bounding the viewable rect
-		CGSize screenSize = [CCDirector sharedDirector].winSize;
-		self.position = ccp(MIN(MAX(-screenSize.width, self.position.x), 0), 0);
-	}
+	// always bounding the viewable rect
+	CGSize screenSize = [CCDirector sharedDirector].winSize;
+	self.position = ccp(MIN(MAX(-screenSize.width, self.position.x), 0), 0);
 	
 	
 	// Check for impacts
@@ -882,7 +903,12 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 		[enemies removeObject:[NSValue valueWithPointer:body]];
 		
 		// calculate the score
-		score += 10 + (combo++) * 5;
+		BarrierObject *bo = (BarrierObject *)node.userData;
+		if (bo && bo.type == BOT_Enemy) {
+			score += 10 + (combo++) * 5;
+		}else {
+			score += 2 + (combo++) * 1;
+		}
 		[self.hud updateScore:score];
 	}
 	
@@ -896,16 +922,18 @@ typedef NS_ENUM(NSInteger, PomActionTag) {
 	CCNode *node = (CCNode *)body->GetUserData();
 	if (node && node.userData) { // BarrierObject stored in node.userData
 		BarrierObject *bo = (BarrierObject *)node.userData;
-		BOOL isEnemy = [bo isEnemy];
-		BOOL isStatic = [bo isStatic];
+		BarrierObjectType type = bo.type;
+		BOOL isViolable = bo.isViolable;
 		
-		int damage = MIN(MAX(0, (int)impulse), 5);
-		bo.life -= damage;
-		
-		if(!isStatic){
+		if(isViolable) {
+			int damage = MIN(MAX(0, (int)impulse), 5);
+			bo.life -= damage;
+			
 			if(bo.life <= 0) {
 				toDestroy.insert(body);
-			}else{
+				
+			}else if(type == BOT_Block) {
+				// display wearout effect
 				float percentage = bo.life / bo.maxlife;
 				if (percentage < 0.8f && [node isKindOfClass:[MyCCSprite class]]) {
 					[(MyCCSprite *)node enableMaskEffect];

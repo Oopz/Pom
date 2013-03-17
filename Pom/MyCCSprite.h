@@ -20,6 +20,11 @@
 	GLuint flagUniformLocation;
 }
 
+@property (nonatomic, strong) NSMutableDictionary *actions;
+
+- (void) setupAnimation:(NSString*)name asAction:(NSString*)actionName startFrame:(int)startFrame endFrame:(int)endFrame;
+- (void) playAnimation:(NSString*)actionName;
+
 - (void) enableMaskEffect;
 - (void) disableMaskEffect;
 

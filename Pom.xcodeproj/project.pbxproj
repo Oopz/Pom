@@ -245,6 +245,7 @@
 		1BDF42F716F4CA020092495C /* eject_anim.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1BDF42F516F4CA020092495C /* eject_anim.plist */; };
 		1BDF42F816F4CA020092495C /* eject_anim.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BDF42F616F4CA020092495C /* eject_anim.png */; };
 		1BDF42FB16F4E04F0092495C /* MyAnimBatchNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BDF42FA16F4E04F0092495C /* MyAnimBatchNode.m */; };
+		1BF6A41816F6200600DB9200 /* Cartridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BF6A41716F6200600DB9200 /* Cartridge.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -689,6 +690,8 @@
 		1BDF42F616F4CA020092495C /* eject_anim.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = eject_anim.png; sourceTree = "<group>"; };
 		1BDF42F916F4E04F0092495C /* MyAnimBatchNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyAnimBatchNode.h; sourceTree = "<group>"; };
 		1BDF42FA16F4E04F0092495C /* MyAnimBatchNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyAnimBatchNode.m; sourceTree = "<group>"; };
+		1BF6A41616F6200600DB9200 /* Cartridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cartridge.h; sourceTree = "<group>"; };
+		1BF6A41716F6200600DB9200 /* Cartridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Cartridge.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1403,6 +1406,8 @@
 				1B98880916E5EA0300259BEE /* Barrier.m */,
 				1B29F0D916ECCC660093E7B9 /* BarrierObject.h */,
 				1B29F0DA16ECCC660093E7B9 /* BarrierObject.m */,
+				1BF6A41616F6200600DB9200 /* Cartridge.h */,
+				1BF6A41716F6200600DB9200 /* Cartridge.m */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -1697,6 +1702,7 @@
 				1B29F0DB16ECCC660093E7B9 /* BarrierObject.m in Sources */,
 				1B86325A16EE074D00A4BD08 /* MyCCSprite.m in Sources */,
 				1BDF42FB16F4E04F0092495C /* MyAnimBatchNode.m in Sources */,
+				1BF6A41816F6200600DB9200 /* Cartridge.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

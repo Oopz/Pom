@@ -33,7 +33,9 @@
 	CCSprite *animSprite = [CCSprite spriteWithSpriteFrameName:[NSString stringWithFormat:@"%@1.png", name]];
 	CCAction *animAction = [CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:anim]];
 	[animSprite runAction:animAction];
-	[batchNode addChild:animSprite];	
+	[batchNode addChild:animSprite];
+	
+	batchNode.estimateSize = CGSizeMake(animSprite.contentSize.width, animSprite.contentSize.height);
 	
 	return batchNode;
 }

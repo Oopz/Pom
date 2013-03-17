@@ -44,11 +44,43 @@
 		glBindTexture(GL_TEXTURE_2D, [colorRampTexture name]);
 		glActiveTexture(GL_TEXTURE0);
 		
+		self.actions = [NSMutableDictionary dictionary];
 		
 		[self scheduleUpdate];
 	}
 	
 	return self;
+}
+
+- (void) setupAnimation:(NSString*)name asAction:(NSString*)actionName startFrame:(int)startFrame endFrame:(int)endFrame {
+	
+	[[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:
+	 [NSString stringWithFormat:@"%@_anim.plist", name]];
+	
+	NSMutableArray *animFrames = [NSMutableArray array];
+	for (int i=startFrame; i<=endFrame; ++i) {
+		CCSpriteFrame *spriteFrame = [[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:
+									  [NSString stringWithFormat:@"%@%d.png", name, i]];
+		
+		if (spriteFrame) {
+			[animFrames addObject:spriteFrame];
+		}else{
+			break;
+		}
+	}
+	
+	CCAnimation *anim = [CCAnimation animationWithSpriteFrames:animFrames delay:0.1f];
+	CCAction *animAction = [CCRepeatForever actionWithAction:[CCAnimate actionWithAnimation:anim]];
+	
+	//[self.actions setValue:[NSValue valueWithPointer:(void*)1] forKey:@"abc"];
+	[self.actions setValue:animAction forKey:actionName];
+	
+	//[self runAction:animAction];
+	
+}
+
+- (void) playAnimation:(NSString*)actionName {
+	[self runAction:[self.actions objectForKey:actionName]];
 }
 
 - (void) enableMaskEffect {
@@ -164,6 +196,8 @@
 	if (particleEffect) {
 		[self removeEffect];
 	}
+	
+	[self.actions release];
 	
     [super dealloc];
 }
